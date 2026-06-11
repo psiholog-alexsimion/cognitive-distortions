@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ClearMind – Cognitive Distortions Trainer</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F7F4EF; --surface:#FFFFFF; --surface2:#F0EBE3;
+  --ink:#1A1410; --ink-muted:#6B5E52;
+  --accent:#C05E3C; --accent-light:#F5D9CE;
+  --accent2:#3C7A6B; --accent2-light:#D0EDE8;
+  --correct:#2E7D56; --wrong:#B83232;
+  --border:#DDD5C8;
+  --shadow:0 4px 24px rgba(26,20,16,.08);
+  --radius:18px; --radius-sm:10px;
+  --transition:.22s cubic-bezier(.4,0,.2,1);
+  --font-display:'DM Serif Display',Georgia,serif;
+  --font-body:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--ink);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:0 0 80px;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(192,94,60,.07) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 90%,rgba(60,122,107,.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+header{width:100%;max-width:480px;padding:36px 24px 0;text-align:center;position:relative;z-index:1;}
+.logo-eyebrow{font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+header h1{font-family:var(--font-display);font-size:2.2rem;line-height:1.1;}
+header h1 em{font-style:italic;color:var(--accent);}
+header p.tagline{margin-top:8px;font-size:.88rem;color:var(--ink-muted);font-weight:300;line-height:1.5;}
+
+main{width:100%;max-width:480px;padding:0 16px;position:relative;z-index:1;margin-top:24px;}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 24px;border:1px solid var(--border);}
+.card.animate{animation:slideUp .35s cubic-bezier(.4,0,.2,1) both;}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes flashNew{0%{opacity:0;transform:scale(.97);}100%{opacity:1;transform:scale(1);}}
+.card.flash{animation:flashNew .3s ease both;}
+
+/* PROGRESS */
+.progress-wrap{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.progress-bar{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1);}
+.progress-label{font-size:.72rem;font-weight:600;color:var(--ink-muted);white-space:nowrap;}
+.distortion-label{font-size:.72rem;font-weight:600;color:var(--ink-muted);margin-bottom:14px;letter-spacing:.04em;}
+.distortion-label span{color:var(--accent);}
+
+/* QUESTION */
+.question-step-label{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:8px;}
+.question-text{font-family:var(--font-display);font-size:1.3rem;line-height:1.35;color:var(--ink);margin-bottom:16px;}
+
+/* HINT */
+.btn-hint{background:none;border:1.5px dashed var(--border);border-radius:99px;font-family:var(--font-body);font-size:.78rem;font-weight:500;color:var(--ink-muted);padding:6px 16px;cursor:pointer;margin-bottom:14px;transition:border-color var(--transition),color var(--transition),background var(--transition);display:inline-flex;align-items:center;gap:6px;}
+.btn-hint:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.question-hint{font-size:.78rem;color:var(--ink-muted);background:var(--surface2);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:18px;line-height:1.5;display:none;gap:8px;align-items:flex-start;}
+.question-hint.visible{display:flex;}
+.question-hint .hint-icon{flex-shrink:0;font-size:1rem;}
+
+/* OPTIONS */
+.options-list{display:flex;flex-direction:column;gap:10px;list-style:none;}
+.option-btn{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;text-align:left;font-family:var(--font-body);font-size:.88rem;font-weight:400;color:var(--ink);cursor:pointer;transition:border-color var(--transition),background var(--transition),transform var(--transition);display:flex;align-items:flex-start;gap:11px;line-height:1.45;-webkit-tap-highlight-color:transparent;user-select:none;}
+.option-btn:active:not(:disabled){transform:scale(.98);}
+.option-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent-light);}
+.option-letter{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--surface2);color:var(--ink-muted);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background var(--transition),color var(--transition);margin-top:1px;}
+.option-btn:hover:not(:disabled) .option-letter{background:var(--accent);color:#fff;}
+.option-btn.correct{border-color:var(--correct);background:#EAF6EF;}
+.option-btn.correct .option-letter{background:var(--correct);color:#fff;}
+.option-btn.wrong{border-color:var(--wrong);background:#FAEAEA;}
+.option-btn.wrong .option-letter{background:var(--wrong);color:#fff;}
+.option-btn:disabled{cursor:not-allowed;opacity:.85;}
+
+/* FEEDBACK */
+.feedback-box{border-radius:var(--radius-sm);padding:14px 16px;margin-top:16px;font-size:.85rem;line-height:1.55;display:none;}
+.feedback-box.show{display:block;animation:fadeIn .25s ease both;}
+.feedback-box.correct-fb{background:#EAF6EF;border:1px solid #A8D9BC;color:#1A5C38;}
+.feedback-box.wrong-fb{background:#FAEAEA;border:1px solid #E8AAAA;color:#7A1F1F;}
+.feedback-box strong{display:block;margin-bottom:4px;font-size:.9rem;}
+.example-box{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 14px;margin-top:14px;font-size:.82rem;color:var(--ink-muted);line-height:1.55;display:none;}
+.example-box.show{display:block;animation:fadeIn .3s ease both;}
+.example-box strong{color:var(--ink);display:block;margin-bottom:3px;font-size:.82rem;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:99px;font-family:var(--font-body);font-weight:600;font-size:.9rem;cursor:pointer;transition:all var(--transition);-webkit-tap-highlight-color:transparent;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;padding:14px 28px;box-shadow:0 4px 16px rgba(192,94,60,.3);}
+.btn-primary:hover{background:#A84D2E;transform:translateY(-1px);}
+.btn-secondary{background:var(--surface2);color:var(--ink);padding:13px 24px;border:1.5px solid var(--border);}
+.btn-secondary:hover{background:var(--border);}
+.btn-ghost{background:transparent;color:var(--ink-muted);padding:10px 18px;font-size:.83rem;}
+.btn-ghost:hover{color:var(--ink);}
+.btn-wa{background:#25D366;color:#fff;padding:14px 28px;box-shadow:0 4px 16px rgba(37,211,102,.3);}
+.btn-wa:hover{background:#1ebe5d;transform:translateY(-1px);}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
+.btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.btn-row .btn{flex:1;min-width:120px;}
+
+/* Q SCORE BADGES */
+.q-score-row{display:flex;gap:8px;margin-bottom:20px;}
+.q-score-badge{flex:1;border-radius:var(--radius-sm);padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:500;}
+.q-score-badge.win{background:#EAF6EF;border:1px solid #A8D9BC;color:#1A5C38;}
+.q-score-badge.lose{background:#FAEAEA;border:1px solid #E8AAAA;color:#7A1F1F;}
+.q-score-badge .qsb-icon{font-size:1rem;flex-shrink:0;}
+.q-score-badge .qsb-label{font-size:.7rem;color:inherit;opacity:.8;display:block;}
+
+/* RESULT TABS */
+.result-tabs{display:flex;background:var(--surface2);border-radius:99px;padding:4px;margin-bottom:16px;}
+.result-tab-btn{flex:1;border:none;background:transparent;border-radius:99px;padding:8px;font-family:var(--font-body);font-size:.8rem;font-weight:500;color:var(--ink-muted);cursor:pointer;transition:all var(--transition);}
+.result-tab-btn.active{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 2px 8px rgba(26,20,16,.08);}
+
+/* RESULT CARD */
+.result-icon{font-size:3.5rem;text-align:center;margin-bottom:10px;animation:pop .4s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes pop{from{transform:scale(.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.result-title{font-family:var(--font-display);font-size:1.6rem;text-align:center;margin-bottom:6px;}
+.result-subtitle{font-size:.85rem;color:var(--ink-muted);text-align:center;margin-bottom:20px;line-height:1.55;}
+.score-pills{display:flex;gap:10px;justify-content:center;margin-bottom:20px;}
+.score-pill{border-radius:var(--radius-sm);padding:12px 20px;text-align:center;flex:1;}
+.score-pill.good{background:#EAF6EF;border:1px solid #A8D9BC;}
+.score-pill.bad{background:#FAEAEA;border:1px solid #E8AAAA;}
+.score-pill .sp-num{font-size:1.8rem;font-weight:700;display:block;}
+.score-pill.good .sp-num{color:var(--correct);}
+.score-pill.bad .sp-num{color:var(--wrong);}
+.score-pill .sp-lbl{font-size:.72rem;color:var(--ink-muted);}
+.info-card{background:var(--surface2);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;}
+.info-card h3{font-family:var(--font-display);font-size:1.05rem;margin-bottom:6px;}
+.info-card p{font-size:.82rem;color:var(--ink-muted);line-height:1.6;margin-bottom:8px;}
+.info-card .info-example{font-size:.8rem;color:var(--ink);background:var(--surface);border-radius:8px;padding:10px 12px;border-left:3px solid var(--accent);font-style:italic;line-height:1.5;}
+.read-more-link{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;color:var(--accent);font-weight:600;text-decoration:none;margin-top:10px;padding:6px 12px;background:var(--accent-light);border-radius:99px;transition:background var(--transition);}
+.read-more-link:hover{background:#EBC4B5;}
+
+/* FORM / EMAIL */
+.section-title{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--ink-muted);margin-bottom:6px;}
+.form-group input,.form-group select{width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-family:var(--font-body);font-size:.9rem;color:var(--ink);background:var(--surface);transition:border-color var(--transition);outline:none;}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent);}
+.form-group input::placeholder{color:#B8ADA4;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.input-with-icon{position:relative;}
+.input-with-icon input{padding-left:38px;}
+.input-with-icon .ii{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:1rem;}
+.schedule-info{background:var(--accent2-light);border-radius:var(--radius-sm);padding:14px;font-size:.82rem;color:var(--accent2);line-height:1.55;margin-bottom:16px;display:flex;gap:9px;align-items:flex-start;}
+.schedule-info .si-icon{flex-shrink:0;font-size:1.1rem;}
+.emailjs-note{background:var(--accent-light);border-radius:var(--radius-sm);padding:12px 14px;font-size:.78rem;color:#7A3020;line-height:1.55;margin-bottom:16px;}
+.emailjs-note a{color:var(--accent);}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface2);border-radius:99px;padding:4px;margin-bottom:22px;}
+.tab-btn{flex:1;border:none;background:transparent;border-radius:99px;padding:9px 8px;font-family:var(--font-body);font-size:.8rem;font-weight:500;color:var(--ink-muted);cursor:pointer;transition:all var(--transition);-webkit-tap-highlight-color:transparent;}
+.tab-btn.active{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 2px 8px rgba(26,20,16,.08);}
+
+/* STATUS */
+.status-msg{border-radius:var(--radius-sm);padding:12px 14px;font-size:.84rem;line-height:1.5;margin-top:12px;display:none;}
+.status-msg.show{display:block;animation:fadeIn .25s ease;}
+.status-msg.success{background:#EAF6EF;border:1px solid #A8D9BC;color:#1A5C38;}
+.status-msg.error{background:#FAEAEA;border:1px solid #E8AAAA;color:#7A1F1F;}
+.status-msg.info{background:var(--accent-light);border:1px solid #E8C0AE;color:#7A3020;}
+
+/* MISC */
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.divider{height:1px;background:var(--border);margin:22px 0;}
+.nav-dots{display:flex;justify-content:center;gap:6px;margin-top:20px;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background var(--transition),transform var(--transition);}
+.nav-dot.active{background:var(--accent);transform:scale(1.3);}
+.nav-dot.done{background:var(--accent2);}
+.history-empty{text-align:center;color:var(--ink-muted);font-size:.85rem;padding:28px 0;}
+.history-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.history-item:last-child{border-bottom:none;}
+.hi-badge{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.hi-badge.win{background:#EAF6EF;}
+.hi-badge.lose{background:#FAEAEA;}
+.hi-body{flex:1;min-width:0;}
+.hi-name{font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hi-date{font-size:.74rem;color:var(--ink-muted);margin-top:2px;}
+.hi-score{font-size:.8rem;font-weight:600;}
+.hi-score.win{color:var(--correct);}
+.hi-score.lose{color:var(--wrong);}
+.welcome-icon{font-size:2.8rem;text-align:center;margin-bottom:12px;}
+.welcome-title{font-family:var(--font-display);font-size:1.5rem;text-align:center;margin-bottom:8px;}
+.welcome-body{font-size:.87rem;color:var(--ink-muted);line-height:1.65;text-align:center;margin-bottom:22px;}
+.feature-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+.feature-list li{display:flex;align-items:flex-start;gap:10px;font-size:.85rem;color:var(--ink-muted);line-height:1.5;}
+.feature-list .fi{flex-shrink:0;font-size:1.1rem;}
+.screen{display:none;}
+.screen.active{display:block;animation:slideUp .3s ease both;}
+.q2-context{font-size:.85rem;color:var(--ink);background:var(--accent-light);border-left:3px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 14px;margin-bottom:16px;line-height:1.55;}
+
+/* CONFIRM DIALOG */
+.confirm-overlay{position:fixed;inset:0;background:rgba(26,20,16,.45);z-index:100;display:none;align-items:center;justify-content:center;padding:24px;}
+.confirm-overlay.show{display:flex;animation:fadeIn .2s ease;}
+.confirm-box{background:var(--surface);border-radius:var(--radius);padding:28px 24px;max-width:320px;width:100%;box-shadow:var(--shadow);}
+.confirm-box h3{font-family:var(--font-display);font-size:1.2rem;margin-bottom:8px;}
+.confirm-box p{font-size:.85rem;color:var(--ink-muted);line-height:1.55;margin-bottom:20px;}
+.confirm-row{display:flex;gap:10px;}
+.confirm-row .btn{flex:1;}
+
+footer{margin-top:40px;text-align:center;font-size:.78rem;color:var(--ink-muted);position:relative;z-index:1;}
+footer a{color:var(--accent);text-decoration:none;font-weight:500;}
+footer a:hover{text-decoration:underline;}
+@media(max-width:360px){header h1{font-size:1.9rem;}.question-text{font-size:1.2rem;}.card{padding:22px 18px;}.btn{font-size:.84rem;}}
+@media(min-width:480px){main{padding:0;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-eyebrow">🧠 ClearMind</div>
+  <h1>Train Your <em>Mind</em></h1>
+  <p class="tagline">Recognize & reframe cognitive distortions — one day at a time</p>
+</header>
+
+<main>
+
+  <!-- CONFIRM DIALOG -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <h3>Leave the quiz?</h3>
+      <p>Your current progress will be lost. Are you sure you want to go home?</p>
+      <div class="confirm-row">
+        <button class="btn btn-secondary" onclick="closeConfirm()">Keep going</button>
+        <button class="btn btn-primary" onclick="confirmHome()">Yes, go home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WELCOME -->
+  <div id="screen-welcome" class="screen active">
+    <div class="card animate">
+      <div class="welcome-icon">🌿</div>
+      <div class="welcome-title">Welcome to ClearMind</div>
+      <div class="welcome-body">A daily practice to recognize the thought traps that keep us stuck — based on CBT research and the <em>50 Common Cognitive Distortions</em>.</div>
+      <ul class="feature-list">
+        <li><span class="fi">🎯</span><span>Two-question quiz on random cognitive distortions</span></li>
+        <li><span class="fi">💡</span><span>Instant feedback with real-world examples</span></li>
+        <li><span class="fi">📧</span><span>Email or WhatsApp your results anytime</span></li>
+        <li><span class="fi">👨‍💻</span><span>Created by <a href="https://www.psyalexsimion.com" target="_blank" style="color:var(--accent);font-weight:600;text-decoration:none">Alex Simion</a></span></li>
+      </ul>
+      <button class="btn btn-primary" style="width:100%" onclick="startQuiz()">Start Today's Quiz →</button>
+      <div class="divider"></div>
+      <div class="tabs" id="home-tabs">
+        <button class="tab-btn" onclick="showHomeTab('email')">📧 Email</button>
+        <button class="tab-btn" onclick="showHomeTab('setup')">⚙️ Setup</button>
+        <button class="tab-btn" onclick="showHomeTab('history')">📈 History</button>
+      </div>
+      <div id="home-tab-email" style="display:none">
+        <div class="section-title">Send Results by Email</div>
+        <div class="schedule-info"><span class="si-icon">📅</span><span>Send yourself the quiz results via email so you can review anytime.</span></div>
+        <div class="form-group">
+          <label>Your email address</label>
+          <div class="input-with-icon"><span class="ii">✉️</span><input type="email" id="email-to" placeholder="you@example.com"></div>
+        </div>
+        <div class="form-group">
+          <label>CC (optional)</label>
+          <div class="input-with-icon"><span class="ii">📋</span><input type="email" id="email-cc" value="psyalexsimion@yahoo.com"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Frequency</label>
+            <select id="email-freq">
+              <option value="1">Every day</option>
+              <option value="2" selected>Every 2 days</option>
+              <option value="3">Every 3 days</option>
+              <option value="7">Weekly</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Best time</label>
+            <select id="email-time">
+              <option value="morning">Morning (8–9 AM)</option>
+              <option value="afternoon" selected>Afternoon (3–4 PM)</option>
+              <option value="evening">Evening (7–8 PM)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="sendEmail()">
+          <span id="email-btn-txt">📬 Send Results Email</span>
+          <span id="email-btn-spin" style="display:none" class="spinner"></span>
+        </button>
+        <div id="email-status" class="status-msg"></div>
+        <div class="emailjs-note" style="margin-top:14px">
+          <strong>📌 Using EmailJS:</strong> Go to <a href="#" onclick="showHomeTab('setup');return false;">⚙️ Setup</a> to enter your credentials. Without setup, a <em>mailto:</em> fallback is used.
+        </div>
+      </div>
+      <div id="home-tab-setup" style="display:none">
+        <div class="section-title">EmailJS Configuration</div>
+        <div class="emailjs-note">Create a free account at <strong>emailjs.com</strong>, add a service and template, then paste the IDs below.</div>
+        <div class="form-group"><label>Public Key</label><input type="text" id="ejs-public-key" placeholder="e.g. user_aBcDeF1234" oninput="saveConfig()"></div>
+        <div class="form-group"><label>Service ID</label><input type="text" id="ejs-service-id" placeholder="e.g. service_xyz123" oninput="saveConfig()"></div>
+        <div class="form-group"><label>Template ID</label><input type="text" id="ejs-template-id" placeholder="e.g. template_abc456" oninput="saveConfig()"></div>
+        <div class="schedule-info" style="margin-top:6px"><span class="si-icon">💡</span><span>Template variables: <code>{{to_email}}</code>, <code>{{cc_email}}</code>, <code>{{distortion_name}}</code>, <code>{{distortion_def}}</code>, <code>{{distortion_example}}</code>, <code>{{quiz_link}}</code></span></div>
+        <div id="config-saved" class="status-msg"></div>
+      </div>
+      <div id="home-tab-history" style="display:none">
+        <div class="section-title">Practice History</div>
+        <div id="history-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTION 1 -->
+  <div id="screen-q1" class="screen">
+    <div class="nav-dots">
+      <div class="nav-dot active"></div>
+      <div class="nav-dot"></div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="card animate" style="margin-top:14px">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width:33%"></div></div>
+        <span class="progress-label">1 / 2</span>
+      </div>
+      <div class="distortion-label">Distortion 1 of 2 — <span id="q1-name-label"></span></div>
+      <div class="question-step-label">Name recognition</div>
+      <div class="question-text" id="q1-text"></div>
+      <button class="btn-hint" id="q1-hint-btn" onclick="toggleHint('q1')">💡 Need a hint?</button>
+      <div class="question-hint" id="q1-hint"><span class="hint-icon">💬</span><span id="q1-hint-text"></span></div>
+      <ul class="options-list" id="q1-options"></ul>
+      <div class="feedback-box" id="q1-feedback"></div>
+      <div class="example-box" id="q1-example"></div>
+      <div class="btn-row" id="q1-btn-row" style="display:none">
+        <button class="btn btn-ghost" onclick="askHome()">← Home</button>
+        <button class="btn btn-primary" id="q1-next-btn" onclick="goToQ2()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTION 2 -->
+  <div id="screen-q2" class="screen">
+    <div class="nav-dots">
+      <div class="nav-dot done"></div>
+      <div class="nav-dot active"></div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="card animate" style="margin-top:14px">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+        <span class="progress-label">2 / 2</span>
+      </div>
+      <div class="distortion-label">Distortion 2 of 2 — <span id="q2-name-label"></span></div>
+      <div class="question-step-label">Definition recognition</div>
+      <div class="question-text" id="q2-text"></div>
+      <div class="q2-context" id="q2-context"></div>
+      <button class="btn-hint" id="q2-hint-btn" onclick="toggleHint('q2')">💡 Need a hint?</button>
+      <div class="question-hint" id="q2-hint"><span class="hint-icon">🔍</span><span id="q2-hint-text"></span></div>
+      <ul class="options-list" id="q2-options"></ul>
+      <div class="feedback-box" id="q2-feedback"></div>
+      <div class="example-box" id="q2-example"></div>
+      <div class="btn-row" id="q2-btn-row" style="display:none">
+        <button class="btn btn-ghost" onclick="askHome()">← Home</button>
+        <button class="btn btn-primary" onclick="showResults()">See Results →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" class="screen">
+    <div class="nav-dots">
+      <div class="nav-dot done"></div>
+      <div class="nav-dot done"></div>
+      <div class="nav-dot active"></div>
+    </div>
+    <div class="card animate" style="margin-top:14px">
+      <div class="result-icon" id="result-icon">🎉</div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-subtitle" id="result-subtitle"></div>
+      <div class="score-pills">
+        <div class="score-pill good"><span class="sp-num" id="res-correct">0</span><span class="sp-lbl">Correct</span></div>
+        <div class="score-pill bad"><span class="sp-num" id="res-wrong">0</span><span class="sp-lbl">Missed</span></div>
+      </div>
+      <!-- Per-question result badges -->
+      <div class="q-score-row">
+        <div class="q-score-badge" id="q1-result-badge">
+          <span class="qsb-icon"></span>
+          <div><span class="qsb-label">Question 1</span><span id="q1-result-name"></span></div>
+        </div>
+        <div class="q-score-badge" id="q2-result-badge">
+          <span class="qsb-icon"></span>
+          <div><span class="qsb-label">Question 2</span><span id="q2-result-name"></span></div>
+        </div>
+      </div>
+      <!-- Distortion info tabs -->
+      <div class="result-tabs">
+        <button class="result-tab-btn active" onclick="showResultTab(1)">Distortion 1</button>
+        <button class="result-tab-btn" onclick="showResultTab(2)">Distortion 2</button>
+      </div>
+      <div id="res-tab-1">
+        <div class="info-card">
+          <h3 id="res-d1-name"></h3>
+          <p id="res-d1-def"></p>
+          <div class="info-example" id="res-d1-ex"></div>
+          <a class="read-more-link" id="res-d1-more" href="#" target="_blank">📖 Read more →</a>
+        </div>
+      </div>
+      <div id="res-tab-2" style="display:none">
+        <div class="info-card">
+          <h3 id="res-d2-name"></h3>
+          <p id="res-d2-def"></p>
+          <div class="info-example" id="res-d2-ex"></div>
+          <a class="read-more-link" id="res-d2-more" href="#" target="_blank">📖 Read more →</a>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-secondary" onclick="startQuiz()">🔄 New Quiz</button>
+        <button class="btn btn-primary" onclick="showHomeTab('email');showScreen('screen-welcome')">📧 Email Results</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-wa" style="width:100%" onclick="sendWhatsApp()">💬 WhatsApp Results</button>
+      </div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="showScreen('screen-welcome')">← Home</button>
+    </div>
+  </div>
+
+</main>
+
+<footer>&copy; 2026 Created by <a href="https://www.psyalexsimion.com" target="_blank">Alex Simion</a></footer>
+
+<script>
+var DISTORTIONS = [
+  { name:"All-or-Nothing Thinking", aka:"Black-and-white thinking", definition:"Evaluating experiences in extreme, absolute categories — perfect or worthless, success or failure — with no room for the middle ground that reflects real life.", example:"\"I ate one biscuit off my diet. The whole week is ruined — I have no self-control.\"", hint1:"Look for absolute words: always, never, completely, totally, worthless, perfect.", hint2:"The definition describes a total absence of grey — only black or white outcomes exist.", readMore:"https://positivepsychology.com/cognitive-distortions/#all-or-nothing" },
+  { name:"Splitting", aka:"Idealisation and devaluation", definition:"Oscillating between seeing a person as entirely wonderful and entirely worthless — unable to hold a balanced, mixed view of the same individual.", example:"\"My therapist understood me perfectly for months. Now that she challenged me, she's completely incompetent and doesn't care at all.\"", hint1:"Watch for a sudden, total flip from idealization to contempt with no middle ground.", hint2:"The same person is first perfect, then worthless — without any mixed or nuanced view.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Mental Filter", aka:"Selective abstraction", definition:"Fixating on a single negative detail and dwelling on it so exclusively that the whole picture becomes distorted — like one drop of ink clouding an entire glass of water.", example:"\"My supervisor praised the whole report but said one section needed more data. I can't stop thinking about that one criticism.\"", hint1:"The person zooms into one negative detail and cannot see anything else.", hint2:"One negative detail is extracted and magnified until it eclipses every positive aspect.", readMore:"https://positivepsychology.com/cognitive-distortions/#mental-filter" },
+  { name:"Tunnel Vision", aka:"Selective attention to threat", definition:"Scanning a situation exclusively for its negative or threatening aspects while the neutral and positive elements remain completely outside awareness.", example:"\"That networking event was awful. I only remember the awkward pause — not the three good conversations I had.\"", hint1:"Unlike Mental Filter, Tunnel Vision operates on whole situations — not just one detail within them.", hint2:"The entire situation is viewed through a negative lens — positives are not filtered out but never seen at all.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Confirmation Bias", aka:"Seeing what you expect", definition:"Selectively attending to information that confirms an existing negative belief about yourself, others, or the world — while discarding contradictory evidence.", example:"\"Three colleagues smiled at me but one looked away — that proves people find me unlikeable.\"", hint1:"The person is not filtering randomly — they are specifically hunting for evidence of what they already believe.", hint2:"Evidence that fits the belief is noticed; evidence that contradicts it is invisible or dismissed.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Disqualifying the Positive", aka:"Dismissing the good", definition:"Actively rejecting positive experiences by inventing a reason they don't count — so that a negative belief is maintained despite clear contradicting evidence.", example:"\"My client said the session was exactly what she needed. She's just being polite — it doesn't reflect my actual skill.\"", hint1:"Positives are not ignored — they are acknowledged and then neutralised with a 'but'.", hint2:"The person finds a specific reason (luck, politeness, low standards) to void each positive experience.", readMore:"https://positivepsychology.com/cognitive-distortions/#disqualifying-the-positive" },
+  { name:"Minimization", aka:"Shrinking the positive", definition:"Consistently undervaluing your own achievements, qualities, or contributions — treating genuine successes as trivial or unremarkable.", example:"\"Anyone could have handled that crisis. I just did what was obvious — it wasn't a real achievement.\"", hint1:"Unlike Disqualifying, here the positive isn't explained away — it's simply shrunk to near-zero importance.", hint2:"Achievements are acknowledged but immediately deflated: 'it was nothing', 'anyone could do it'.", readMore:"https://positivepsychology.com/cognitive-distortions/#minimization" },
+  { name:"Catastrophizing", aka:"Awfulizing", definition:"Exaggerating the significance or consequences of a negative event until it becomes a catastrophe — imagining the worst plausible outcome as the most likely one.", example:"\"I stumbled over my words in the presentation. My career is finished — no one will ever take me seriously again.\"", hint1:"The jump from a real event to an imagined catastrophic consequence is the key feature.", hint2:"A real negative event is the starting point, but the predicted outcome is wildly disproportionate.", readMore:"https://positivepsychology.com/cognitive-distortions/#magnification" },
+  { name:"Magnification of Flaws", aka:"Microscoping on imperfection", definition:"Zooming in on a specific flaw, mistake, or weakness — in yourself or others — and amplifying it until it dominates your entire perception of that person or situation.", example:"\"I noticed I interrupted someone once in the meeting. I'm so self-absorbed — that's who I really am.\"", hint1:"This applies to flaws specifically — not to general negative events as in Catastrophizing.", hint2:"One flaw is enlarged until it fills the entire frame — everything else about the person becomes invisible.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Low Frustration Tolerance", aka:"I-can't-stand-it-itis", definition:"Believing that discomfort, inconvenience, or emotional pain is intolerable and unbearable — when in fact you are tolerating it.", example:"\"I can't stand this uncertainty. I literally cannot cope with not knowing the result.\"", hint1:"The statement 'I can't stand this' is the signature — said about something the person is, in fact, standing.", hint2:"Discomfort is catastrophized as unbearable rather than unpleasant — a subtle but clinically important difference.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Overgeneralization", aka:"Drawing sweeping conclusions", definition:"Drawing a broad, absolute conclusion about yourself, others, or life based on a single negative incident — using words like always, never, everyone, nobody.", example:"\"I got rejected for that job. I always fail at the important moments — this is just who I am.\"", hint1:"One event becomes evidence of an endless, universal pattern.", hint2:"The definition describes using one specific incident to prove a permanent, global rule.", readMore:"https://positivepsychology.com/cognitive-distortions/#overgeneralization" },
+  { name:"Global Negative Rating", aka:"Rating the whole self", definition:"Collapsing your entire identity into a single, totalising negative judgment based on specific failures — rating the whole self rather than the specific behaviour.", example:"\"I made a serious error in that assessment. I'm not just a bad clinician — I'm fundamentally incompetent as a person.\"", hint1:"The leap is from 'I did something wrong' to 'I am fundamentally defective'.", hint2:"A specific behaviour or failure is used to condemn the entire self as a global entity.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Mind Reading", aka:"Assumed intent", definition:"Concluding with certainty what another person is thinking or feeling — almost always something negative — without any direct evidence and without checking.", example:"\"She didn't make eye contact during my presentation. She definitely thinks I'm out of my depth.\"", hint1:"The person is certain about another's inner state — no checking, no evidence, no alternative considered.", hint2:"A negative internal state is attributed to someone else as fact, not as hypothesis.", readMore:"https://positivepsychology.com/cognitive-distortions/#mind-reading" },
+  { name:"Fortune Telling", aka:"Predictive thinking", definition:"Treating a negative prediction about the future as a certainty — not as a fear or possibility — and using it to justify avoidance or hopelessness in the present.", example:"\"There's no point preparing for the interview. I know exactly how it will go — I'll freeze and they'll reject me.\"", hint1:"The prediction is held with the certainty of a fact, not the openness of a hypothesis.", hint2:"The future outcome is treated as already known — avoidance or despair follows from this false certainty.", readMore:"https://positivepsychology.com/cognitive-distortions/#fortune-telling" },
+  { name:"Jumping to Conclusions", aka:"Arbitrary inference", definition:"Reaching a negative conclusion about a situation without sufficient evidence — moving from ambiguous data directly to a damaging interpretation.", example:"\"The meeting was rescheduled last minute. Something must have gone wrong — they've lost confidence in me.\"", hint1:"Unlike Mind Reading or Fortune Telling, the conclusion here is about a situation, not specifically a person's thoughts or a future event.", hint2:"An ambiguous event is given a negative meaning without considering neutral or positive alternatives.", readMore:"https://positivepsychology.com/cognitive-distortions/#jumping-to-conclusions" },
+  { name:"Assumed Similarity", aka:"Projection of inner states", definition:"Assuming that others experience situations, emotions, or reactions in exactly the same way you do — projecting your own inner world onto them without verification.", example:"\"Of course he felt humiliated when I corrected him — I would have been devastated. He must hate me now.\"", hint1:"Your own emotional response is assumed to be universal — another's inner state is never actually checked.", hint2:"The person uses their own reaction as the template for everyone else's experience.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Emotional Reasoning", aka:"Feelings as facts", definition:"Using the presence of a strong emotion as proof of an objective truth — 'I feel it, therefore it must be real and accurate'.", example:"\"I feel like a fraud in this role. That feeling of fraudulence proves I really don't belong here.\"", hint1:"The emotion itself is taken as evidence — not as a signal to be examined, but as proof of reality.", hint2:"The logic is: 'I feel X, therefore X is true' — the emotion replaces objective evidence.", readMore:"https://positivepsychology.com/cognitive-distortions/#emotional-reasoning" },
+  { name:"Emotional Reasoning about the Future", aka:"Anxiety as prediction", definition:"Using the presence of anxiety or dread about a future event as evidence that the event will indeed go badly — confusing a fear with a forecast.", example:"\"I feel terrified about tomorrow's presentation. That terror tells me it's going to go catastrophically wrong.\"", hint1:"This is distinct from Fortune Telling — here the evidence for the negative prediction is specifically the emotion of anxiety itself.", hint2:"Anxiety is misread as a signal from reality rather than as a physiological response to uncertainty.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Labelling", aka:"Global negative self-labelling", definition:"Attaching a fixed, totalising negative identity label to yourself based on a specific mistake or behaviour — 'I am X' instead of 'I did X'.", example:"\"I forgot to follow up on that referral. I'm a negligent therapist — that's who I am.\"", hint1:"The label replaces the behaviour — the person stops being someone who made a mistake and becomes the mistake.", hint2:"'I did something wrong' becomes 'I am something wrong' — identity is fused with the error.", readMore:"https://positivepsychology.com/cognitive-distortions/#labeling" },
+  { name:"Labelling Others", aka:"Global negative other-labelling", definition:"Attaching a fixed, totalising negative label to another person based on a single behaviour — reducing them to a stereotype rather than seeing them as a complex individual.", example:"\"He was twenty minutes late. He's an irresponsible, selfish person — that's just what he is.\"", hint1:"The same logic as self-labelling but directed outward — one behaviour defines the entire person.", hint2:"A specific act is used to write off the whole person permanently.", readMore:"https://positivepsychology.com/cognitive-distortions/#labeling" },
+  { name:"Catastrophic Labelling", aka:"Emotionally charged labelling", definition:"Using extreme, emotionally loaded language to describe yourself, others, or events — words far harsher than the facts warrant, amplifying distress.", example:"\"That session was an absolute catastrophe. I was pathetic and incompetent — it was disgraceful.\"", hint1:"The labels used are disproportionately severe — 'catastrophe', 'disgusting', 'pathetic', 'hideous'.", hint2:"Ordinary negatives are given explosive, shame-inducing language that intensifies the emotional impact.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Should Statements (Self-directed)", aka:"Musterbation", definition:"Applying rigid, inflexible internal rules to yourself using 'should', 'must', 'have to', or 'ought to' — producing guilt and self-criticism when the rules are not met.", example:"\"I should always know the right thing to say. I must never show uncertainty with a client.\"", hint1:"The rule is absolute — there are no exceptions, no context, no compassion for human limits.", hint2:"'Should' and 'must' function as moral laws — any violation produces intense guilt or shame.", readMore:"https://positivepsychology.com/cognitive-distortions/#should-statements" },
+  { name:"Should Statements (Other-directed)", aka:"Demandingness toward others", definition:"Applying rigid 'should' and 'must' rules to other people — producing resentment, frustration, and anger when they inevitably fail to comply.", example:"\"He should know how I'm feeling without me having to explain. A good partner would just understand.\"", hint1:"The frustration and resentment here are the emotional signature — not guilt as in self-directed Shoulds.", hint2:"The rule is imposed on others who were never informed of it — their failure to comply is experienced as a moral violation.", readMore:"https://positivepsychology.com/cognitive-distortions/#should-statements" },
+  { name:"Perfectionism", aka:"The impossibly high standard", definition:"Setting unrealistically elevated standards for performance and equating anything less than perfect with complete failure — leaving no room for adequate or good enough.", example:"\"I scored 91% on the exam. I needed 100%. I've let myself down — this isn't good enough.\"", hint1:"Perfectionism is 'should statements' applied globally to performance — any deviation from ideal is total failure.", hint2:"The standard is set at a level no human can sustain — even strong performance is experienced as failure.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Entitlement", aka:"Special rules for me", definition:"Believing that you deserve different, preferential treatment from ordinary rules and expectations — experiencing resentment or indignation when normal standards apply to you.", example:"\"I've been waiting fifteen minutes. Don't these people know my time is valuable? This is completely unacceptable.\"", hint1:"The emotional response is indignation — not disappointment, but a sense of injustice at being treated ordinarily.", hint2:"The rules that apply to everyone are experienced as an affront to one's special status.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Personalization", aka:"Self-referential thinking", definition:"Assuming excessive and unwarranted personal responsibility for negative external events — seeing yourself as the primary cause of outcomes that involve many other factors.", example:"\"My client dropped out of therapy. It must be because I'm not skilled enough — I failed them.\"", hint1:"The person inserts themselves as the main cause of an event that has multiple contributing factors.", hint2:"External events are automatically routed back to the self as evidence of personal failure or inadequacy.", readMore:"https://positivepsychology.com/cognitive-distortions/#personalization" },
+  { name:"Externalization of Blame", aka:"It's always someone else's fault", definition:"Holding others or external circumstances entirely responsible for your negative emotional states — refusing to acknowledge any personal contribution to a situation.", example:"\"I'm always stressed and snapping at people because my manager creates an impossible environment. It's entirely his fault.\"", hint1:"The person's own role, choices, or reactions are completely absent from the account.", hint2:"Full causal responsibility is placed outside — the self is a passive victim of external forces.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Overidentification", aka:"Emotional enmeshment", definition:"Becoming so merged with another person's emotional state that you lose your own separate perspective — their distress becomes your distress without a boundary between you.", example:"\"When my client is in pain, I carry it home with me completely. I can't separate their suffering from my own feelings.\"", hint1:"This is particularly relevant for therapists and caregivers — it is the cognitive/emotional basis of compassion fatigue.", hint2:"The self-other boundary dissolves — you feel what they feel as if it were your own direct experience.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Comparison", aka:"Unfavourable social comparison", definition:"Measuring your worth, performance, or life against others — consistently selecting the most accomplished comparison target and ignoring all context, effort, and starting point.", example:"\"My colleague published three papers this year. I've published one. I'm clearly falling behind — I'm not cut out for this.\"", hint1:"The comparison target is always selected to make the person come up short — never an equal or struggling peer.", hint2:"Context, advantages, circumstances, and different strengths are entirely excluded from the comparison.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Externalization of Self-Worth", aka:"Contingent self-esteem", definition:"Tying your entire sense of worth to external measures — achievements, productivity, approval, status — so that self-esteem rises and falls entirely with external outcomes.", example:"\"I only feel I have value on days when I'm productive. Without output, I'm worthless — just taking up space.\"", hint1:"Self-worth is not experienced as inherent — it is earned and can be lost depending on external results.", hint2:"Worth is contingent on performance — remove the performance and the self feels empty or worthless.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Need for Approval", aka:"Approval-dependent self-esteem", definition:"Making your sense of self-worth, decisions, and emotional wellbeing contingent on receiving validation and positive regard from others.", example:"\"My supervisor didn't comment on my report. She must be disappointed. I can't feel good about my work until I know she approves.\"", hint1:"The self cannot generate its own positive evaluation — it must be sourced from outside.", hint2:"Approval is not just desired but required — its absence creates anxiety or worthlessness.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Imposter Thinking", aka:"Fraudulence schema", definition:"Attributing your genuine achievements to luck, deception, or others' lowered standards — living in chronic fear of being exposed as less competent than people believe.", example:"\"I was accepted into this programme but they clearly misjudged me. When they see my actual work, they'll realise their mistake.\"", hint1:"Achievements are consistently re-attributed to external luck rather than internal competence.", hint2:"Success is experienced as a temporary deception rather than a reflection of real ability.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Emotional Neglect of Self", aka:"Invalidating your own emotions", definition:"Dismissing your own emotional experience as unwarranted, weak, or self-indulgent — telling yourself you have no right to feel what you feel.", example:"\"I shouldn't be this upset — other people have real problems. My feelings are completely disproportionate and embarrassing.\"", hint1:"The person does not deny having the feeling — they deny its legitimacy or right to exist.", hint2:"Feelings are judged as inappropriate before they are listened to — the self becomes its own harsh critic.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Regret Orientation", aka:"Past-focused rumination", definition:"Dwelling persistently on past mistakes, missed opportunities, or what 'could have been' — replaying counterfactual scenarios that prevent engagement with the present.", example:"\"If I had made different choices in my twenties, my life would be meaningful. Everything now is just a consequence of what I failed to do then.\"", hint1:"The emotional tone is regret and loss — not anxiety about the future but grief about a past that cannot be changed.", hint2:"Energy is directed backward — the past is relived, reanalysed, and mourned rather than learned from.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"What-If Thinking", aka:"Chronic future-focused worry", definition:"Generating an unending chain of catastrophic hypothetical questions about the future — each answer producing another 'what if' — without ever reaching resolution.", example:"\"What if I make the wrong decision? What if I can't handle the consequences? What if everything falls apart and I can't recover?\"", hint1:"The chain of 'what ifs' is self-perpetuating — no answer provides relief, each response opens the next question.", hint2:"Unlike Fortune Telling, the outcome is not predicted as certain — it is endlessly, anxiously hypothesized.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Negative Prediction", aka:"Pessimistic forecasting", definition:"Habitually expecting negative outcomes in ambiguous situations — defaulting to the worst plausible result as the most probable one, without specific evidence.", example:"\"I've had this headache for two days. I already know something serious is wrong — the results will be bad.\"", hint1:"This is milder and more habitual than Fortune Telling — it's a default pessimistic stance, not a specific certain prediction.", hint2:"The negative outcome is the automatic default — neutral or positive possibilities are not genuinely considered.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Hypervigilance", aka:"Threat-scanning mode", definition:"Maintaining a chronic state of heightened alertness — continuously scanning the environment for signs of danger, rejection, or failure — even in objectively safe situations.", example:"\"I can never fully relax in social situations. I'm always monitoring people's faces for signs of boredom or disapproval.\"", hint1:"The vigilance is not proportionate to actual threat — it is a constant background process regardless of context.", hint2:"Safety is never registered — the nervous system remains in threat-detection mode by default.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Magical Thinking", aka:"Superstitious causation", definition:"Believing that unrelated thoughts, words, rituals, or objects can causally influence external outcomes — even when no rational mechanism exists.", example:"\"If I allow myself to imagine the diagnosis being benign, I'll jinx it and make it worse. I need to expect the worst to stay safe.\"", hint1:"A causal link is constructed between a thought/ritual and an external outcome with no rational basis.", hint2:"The belief is held with enough conviction to influence behaviour — rituals are performed to prevent feared outcomes.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Control Fallacy — External", aka:"Learned helplessness thinking", definition:"Believing that your life, outcomes, and emotional states are determined entirely by external forces — leaving you with no agency, choice, or capacity to influence your situation.", example:"\"There's nothing I can do about my anxiety — it just happens to me. My circumstances control how I feel and I can't change that.\"", hint1:"Agency is experienced as zero — the self is a passive recipient of whatever external forces produce.", hint2:"This belief functions as both a distortion and a self-fulfilling prophecy — it prevents any action that might disprove it.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Control Fallacy — Internal", aka:"Omnipotent responsibility thinking", definition:"Believing that you are personally responsible for the emotional wellbeing of everyone around you — that their pain, happiness, or distress is caused and controlled by your actions.", example:"\"My partner is unhappy tonight. I must have done something — it's my job to make sure the people around me are okay.\"", hint1:"Unlike Personalization, this is not about blame for a specific event — it is a chronic sense of responsibility for others' emotional states.", hint2:"The self is experienced as the emotional regulator for everyone in their environment.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Fallacy of Fairness", aka:"Life-should-be-fair thinking", definition:"Operating from an unexamined belief that life should distribute outcomes fairly — and experiencing chronic resentment or bitterness when it demonstrably does not.", example:"\"I work twice as hard as my colleagues and earn less. This is objectively unjust — the world is supposed to reward effort.\"", hint1:"The belief is not consciously chosen — it operates as an invisible assumption that generates ongoing resentment.", hint2:"Life is measured against an internal fairness standard it was never designed to meet.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Heaven's Reward Fallacy", aka:"Cosmic justice expectation", definition:"Believing that self-sacrifice, endurance, and effort will inevitably be rewarded — by fate, karma, or justice — producing bitterness and resentment when they are not.", example:"\"I have given everything to this organisation for fifteen years. I deserve recognition and loyalty in return — and I'm getting neither.\"", hint1:"The belief is in a moral ledger — good deeds are deposited and rewards are expected to be returned.", hint2:"When the expected reward fails to materialise, the response is not just disappointment but moral outrage.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Always Being Right", aka:"Rightness compulsion", definition:"Experiencing being wrong as intolerable — devoting significant energy to proving the correctness of your opinions and decisions, often at the expense of the relationship.", example:"\"I know I'm right about this and I need him to admit it. The conversation isn't over until he acknowledges I was correct.\"", hint1:"The goal of the interaction has shifted from communication to winning — being right matters more than connection.", hint2:"The emotional stakes of being wrong are disproportionate — it feels like a threat to identity, not just an error.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Sunk Cost Thinking", aka:"Past-investment bias", definition:"Continuing a course of action — a relationship, career path, or commitment — primarily because of the time, money, or energy already invested, rather than its current or future value.", example:"\"I've spent eight years in this career. I can't change direction now — that would mean everything I've invested was wasted.\"", hint1:"The past investment has already been spent — it cannot be recovered regardless of future choices.", hint2:"The decision is driven by what has been lost rather than what can be gained — a backward-looking logic.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Self-Fulfilling Prophecy", aka:"Behavioural confirmation bias", definition:"Acting in ways that make your negative predictions come true — then using the outcome as confirmation that the original belief was accurate.", example:"\"I know people will find me boring, so I stay quiet and withdraw. Then nobody talks to me, which proves I'm right.\"", hint1:"The behaviour is the missing link — without it, the prediction would not necessarily come true.", hint2:"The distortion creates the evidence for itself through the person's own actions.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Pathological Certainty", aka:"Intolerance of uncertainty", definition:"Finding uncertainty cognitively and emotionally intolerable — requiring guarantees before taking action, making decisions, or allowing oneself to feel settled.", example:"\"I can't move forward with the treatment plan until I'm certain it's the right one. I need to be sure before I commit to anything.\"", hint1:"The demand for certainty is experienced as reasonable — but no amount of information actually satisfies it.", hint2:"Uncertainty is treated as equivalent to danger — settling it becomes an urgent priority that interferes with functioning.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Martyrdom", aka:"Suffering as identity", definition:"Organising your identity around suffering and self-sacrifice — amplifying or maintaining distress because it confirms a sense of moral worth or elicits care from others.", example:"\"Nobody sees how much I carry for this family. I give everything and receive nothing — and I just keep going because someone has to.\"", hint1:"The suffering is not merely experienced — it is narrated, performed, and maintained as evidence of virtue.", hint2:"Martyrdom provides identity and moral status — relief from suffering would require giving up this identity.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Passive Victim Stance", aka:"Agency-denying helplessness", definition:"Adopting a chronic position of helplessness in relation to your circumstances — behaving as though change is impossible and taking no action that might alter the situation.", example:"\"There's nothing I can do about my situation. Other people have it easier — I'm just stuck with what I've been given.\"", hint1:"Unlike Control Fallacy External, the Passive Victim Stance is a behavioural posture — it is enacted, not just believed.", hint2:"The stance removes all accountability and all possibility — which provides relief from the burden of trying.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Overgeneralization from Rejection", aka:"One no means all no", definition:"Interpreting a single experience of rejection, failure, or criticism as proof of a permanent, universal pattern of rejection that will continue indefinitely.", example:"\"She said she wasn't interested. Every woman I approach will say the same — I'm just not the kind of person people choose.\"", hint1:"The single rejection is transformed into a permanent, universal law about the self.", hint2:"One data point is extrapolated into a lifelong, inescapable verdict.", readMore:"https://positivepsychology.com/cognitive-distortions/#overgeneralization" },
+  { name:"Emotional Contagion Distortion", aka:"Absorbing others' emotions as your own", definition:"Automatically adopting the emotional state of those around you — particularly distressed individuals — and losing clarity about which feelings are yours and which belong to others.", example:"\"After my client's session, I feel hopeless and exhausted — exactly as they described feeling. I can't tell where their feelings end and mine begin.\"", hint1:"This distortion is a clinical hazard for therapists and caregivers — the foundation of vicarious trauma.", hint2:"The self becomes a mirror for others' affect rather than a separate emotional presence.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Fusing Thoughts with Facts", aka:"Cognitive fusion", definition:"Treating thoughts as literal truths about reality rather than as mental events — assuming that because a thought exists, it accurately and necessarily reflects the world.", example:"\"The thought 'I am a burden to everyone' keeps appearing. If I think it this often, it must be describing something real about me.\"", hint1:"The thought's persistence or intensity is taken as evidence of its truth — frequency equals validity.", hint2:"Thoughts are not examined or questioned — their existence is mistaken for proof of what they assert.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Idealization", aka:"Placing on a pedestal", definition:"Perceiving a person, relationship, or situation as flawless and perfect — constructing an idealised image that cannot survive contact with ordinary human reality.", example:"\"This new supervisor is exactly what I've needed — she understands everything, makes no mistakes, and is completely trustworthy. I finally feel safe.\"", hint1:"Idealization sets up an inevitable crash — no person can sustain the image of perfection.", hint2:"The positive image is constructed to serve a psychological need — safety, hope, or escape from disappointment.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Emotional Avoidance Thinking", aka:"If I don't think about it, it won't hurt", definition:"Believing that avoiding thoughts or feelings about a painful topic will make it less real or less damaging — using cognitive suppression as an emotional protection strategy.", example:"\"I just won't think about the diagnosis. If I focus on other things, it won't affect me as much.\"", hint1:"The strategy of not thinking is itself a thought — and suppression tends to increase the intensity of what is suppressed.", hint2:"Avoidance is mistaken for protection — in reality it maintains and often amplifies the feared emotional content.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Mind-Body Catastrophizing", aka:"Physical sensation misinterpretation", definition:"Interpreting normal or ambiguous physical sensations as evidence of serious illness or imminent danger — the body becomes a source of threatening signals.", example:"\"My heart is beating faster than usual. Something is seriously wrong — this could be a cardiac event.\"", hint1:"The sensation is real — the catastrophic interpretation is the distortion, not the physical experience itself.", hint2:"Normal physiological variation is filtered through a threat lens — neutral becomes dangerous.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Retrospective Distortion", aka:"Rewriting the past negatively", definition:"Revising memories of past events through a current negative lens — remembering situations as worse than they were, or selectively recalling only the painful elements.", example:"\"Looking back, that relationship was always wrong. I was never really happy — I just didn't see it at the time.\"", hint1:"The past is not recalled neutrally — it is reconstructed to fit the current negative mood or belief.", hint2:"Memory feels like fact but is being actively shaped by the present emotional state.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Dichotomous Evaluation of Others", aka:"People are either with me or against me", definition:"Categorising other people's intentions as either entirely supportive or entirely hostile — unable to hold the possibility that someone can simultaneously care for you and disappoint you.", example:"\"She forgot to check in on me this week. She clearly doesn't care about me at all — I can't rely on her.\"", hint1:"This is All-or-Nothing Thinking applied specifically to relationships and others' intentions.", hint2:"One disappointing behaviour erases all evidence of care — the person is reclassified from ally to enemy.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Shoulds About Emotions", aka:"I shouldn't feel this way", definition:"Applying rigid rules to your own emotional experience — believing certain feelings are forbidden, shameful, or wrong to have — and criticising yourself for feeling them.", example:"\"I shouldn't still be grieving — it's been a year. I should be over this by now. Something is wrong with me.\"", hint1:"This is Should Statements applied inward to feelings rather than behaviours — emotions become moral failures.", hint2:"The feeling itself is not the problem — the judgement that the feeling is unacceptable creates the secondary suffering.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" }
+];
+
+// ── STATE
+var state = {
+  current: null, current2: null, distractors: [],
+  q1Answered: false, q2Answered: false,
+  q1Correct: false,  q2Correct: false
+};
+
+// ── UTILS
+function $(id) { return document.getElementById(id); }
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length-1; i>0; i--) { var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+function letters(i) { return ['A','B','C','D'][i]; }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  $(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showHomeTab(tab) {
+  ['home-tab-email','home-tab-setup','home-tab-history'].forEach(function(p){
+    var el=$(p); if(el) el.style.display='none';
+  });
+  var map={email:'home-tab-email',setup:'home-tab-setup',history:'home-tab-history'};
+  var active=$(map[tab]);
+  var keys=['email','setup','history'];
+  var tabs=document.querySelectorAll('#home-tabs .tab-btn');
+  // Toggle — clicking active tab collapses it
+  var alreadyOpen = active && active.style.display==='block';
+  tabs.forEach(function(t){ t.classList.remove('active'); });
+  if(!alreadyOpen) {
+    if(active) active.style.display='block';
+    tabs[keys.indexOf(tab)].classList.add('active');
+  }
+  if(tab==='history' && !alreadyOpen) renderHistory();
+}
+
+function toggleHint(q) {
+  var hint=$(q+'-hint'), btn=$(q+'-hint-btn');
+  var on=hint.classList.contains('visible');
+  hint.classList.toggle('visible',!on);
+  btn.innerHTML=on?'💡 Need a hint?':'🙈 Hide hint';
+}
+
+function showStatus(id,type,msg) {
+  var el=$(id); if(!el) return;
+  el.className='status-msg '+type+' show';
+  el.textContent=msg;
+  setTimeout(function(){ el.className='status-msg'; },7000);
+}
+
+// ── CONFIRM / HOME
+function askHome() {
+  $('confirm-overlay').classList.add('show');
+}
+function closeConfirm() {
+  $('confirm-overlay').classList.remove('show');
+}
+function confirmHome() {
+  closeConfirm();
+  showScreen('screen-welcome');
+}
+
+// ── QUIZ
+function startQuiz() {
+  var picked = shuffle(DISTORTIONS).slice(0,2);
+  state.current  = picked[0];
+  state.current2 = picked[1];
+  var others = DISTORTIONS.filter(function(d){ return d!==state.current && d!==state.current2; });
+  state.distractors  = shuffle(others).slice(0,3);
+  state.q1Answered = state.q2Answered = false;
+  state.q1Correct  = state.q2Correct  = false;
+  buildQ1(); buildQ2();
+  // Flash animation on new quiz
+  var card = document.querySelector('#screen-q1 .card');
+  if(card){ card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash'); }
+  showScreen('screen-q1');
+}
+
+function buildQ1() {
+  var d = state.current;
+  $('q1-name-label').textContent = d.name;
+  $('q1-text').textContent = 'What best describes the distortion called "'+d.name+'"?';
+  $('q1-hint-text').textContent = d.hint1;
+  $('q1-hint').classList.remove('visible');
+  $('q1-hint-btn').innerHTML = '💡 Need a hint?';
+  $('q1-feedback').className = 'feedback-box';
+  $('q1-feedback').innerHTML = '';
+  $('q1-example').className = 'example-box';
+  $('q1-example').innerHTML = '';
+  $('q1-btn-row').style.display = 'none';
+
+  var opts = shuffle([d.definition].concat(state.distractors.map(function(x){return x.definition;})));
+  var ci = opts.indexOf(d.definition);
+  var ul = $('q1-options'); ul.innerHTML='';
+  opts.forEach(function(def,i){
+    var li=document.createElement('li'), btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML='<span class="option-letter">'+letters(i)+'</span><span>'+def+'</span>';
+    btn.dataset.correct=(i===ci)?'1':'0';
+    btn.onclick=(function(b,ok){ return function(){ answerQ1(b,ok,d); }; })(btn,i===ci);
+    li.appendChild(btn); ul.appendChild(li);
+  });
+}
+
+function answerQ1(btn,isCorrect,d) {
+  if(state.q1Answered) return;
+  state.q1Answered=true; state.q1Correct=isCorrect;
+  document.querySelectorAll('#q1-options .option-btn').forEach(function(b){
+    b.disabled=true;
+    if(b.dataset.correct==='1') b.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('wrong');
+  var fb=$('q1-feedback');
+  fb.className='feedback-box '+(isCorrect?'correct-fb':'wrong-fb')+' show';
+  fb.innerHTML=isCorrect
+    ?'<strong>Correct!</strong> "'+d.name+'" — '+d.aka+'.'
+    :'<strong>Not quite.</strong> The correct definition is highlighted above. Also known as: <em>'+d.aka+'</em>.';
+  var ex=$('q1-example');
+  ex.className='example-box show';
+  ex.innerHTML='<strong>Real-life example:</strong> '+d.example;
+  $('q1-btn-row').style.display='flex';
+  // Scroll to button row on mobile
+  setTimeout(function(){ $('q1-btn-row').scrollIntoView({behavior:'smooth',block:'nearest'}); },200);
+}
+
+function goToQ2() { showScreen('screen-q2'); }
+
+function buildQ2() {
+  var d = state.current2;
+  $('q2-name-label').textContent = '?';
+  $('q2-text').textContent = 'Which cognitive distortion matches this description?';
+  $('q2-context').textContent = d.definition;
+  $('q2-hint-text').textContent = d.hint2;
+  $('q2-hint').classList.remove('visible');
+  $('q2-hint-btn').innerHTML = '💡 Need a hint?';
+  $('q2-feedback').className = 'feedback-box';
+  $('q2-feedback').innerHTML = '';
+  $('q2-example').className = 'example-box';
+  $('q2-example').innerHTML = '';
+  $('q2-btn-row').style.display = 'none';
+
+  var opts = shuffle([d.name].concat(state.distractors.map(function(x){return x.name;})));
+  var ci = opts.indexOf(d.name);
+  var ul=$('q2-options'); ul.innerHTML='';
+  opts.forEach(function(name,i){
+    var li=document.createElement('li'), btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML='<span class="option-letter">'+letters(i)+'</span><span><strong>'+name+'</strong></span>';
+    btn.dataset.correct=(i===ci)?'1':'0';
+    btn.onclick=(function(b,ok){ return function(){ answerQ2(b,ok,d); }; })(btn,i===ci);
+    li.appendChild(btn); ul.appendChild(li);
+  });
+}
+
+function answerQ2(btn,isCorrect,d) {
+  if(state.q2Answered) return;
+  state.q2Answered=true; state.q2Correct=isCorrect;
+  // Reveal distortion name in label
+  $('q2-name-label').textContent = d.name;
+  document.querySelectorAll('#q2-options .option-btn').forEach(function(b){
+    b.disabled=true;
+    if(b.dataset.correct==='1') b.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('wrong');
+  var fb=$('q2-feedback');
+  fb.className='feedback-box '+(isCorrect?'correct-fb':'wrong-fb')+' show';
+  fb.innerHTML=isCorrect
+    ?'<strong>Correct!</strong> You matched the definition to <em>'+d.name+'</em> accurately.'
+    :'<strong>Not quite.</strong> The description belongs to <em>'+d.name+'</em> — also known as <em>'+d.aka+'</em>.';
+  var ex=$('q2-example');
+  ex.className='example-box show';
+  ex.innerHTML='<strong>Real-life example:</strong> '+d.example;
+  $('q2-btn-row').style.display='flex';
+  setTimeout(function(){ $('q2-btn-row').scrollIntoView({behavior:'smooth',block:'nearest'}); },200);
+}
+
+// ── RESULTS
+function showResultTab(n) {
+  $('res-tab-1').style.display = n===1?'block':'none';
+  $('res-tab-2').style.display = n===2?'block':'none';
+  document.querySelectorAll('.result-tab-btn').forEach(function(b,i){
+    b.classList.toggle('active', i===n-1);
+  });
+}
+
+function showResults() {
+  var score=(state.q1Correct?1:0)+(state.q2Correct?1:0);
+  var d=state.current, d2=state.current2;
+  var icons=['🌱','🌟','🎉'];
+  var titles=['Keep practicing!','Good effort!','Excellent!'];
+  var subs=[
+    'Review both distortions below and try again tomorrow.',
+    'You got one right. One more session will nail both!',
+    'You correctly identified both distortions. Sharp CBT knowledge!'
+  ];
+  $('result-icon').textContent   = icons[score];
+  $('result-title').textContent  = titles[score];
+  $('result-subtitle').textContent = subs[score];
+  $('res-correct').textContent   = score;
+  $('res-wrong').textContent     = 2-score;
+
+  // Per-question badges
+  var b1=$('q1-result-badge'), b2=$('q2-result-badge');
+  b1.className='q-score-badge '+(state.q1Correct?'win':'lose');
+  b1.querySelector('.qsb-icon').textContent = state.q1Correct?'✓':'✗';
+  $('q1-result-name').textContent = d.name;
+  b2.className='q-score-badge '+(state.q2Correct?'win':'lose');
+  b2.querySelector('.qsb-icon').textContent = state.q2Correct?'✓':'✗';
+  $('q2-result-name').textContent = d2.name;
+
+  // Info cards
+  $('res-d1-name').textContent = d.name;
+  $('res-d1-def').textContent  = d.definition;
+  $('res-d1-ex').textContent   = d.example;
+  $('res-d1-more').href        = d.readMore;
+  $('res-d1-more').textContent = '📖 Read more →';
+  $('res-d2-name').textContent = d2.name;
+  $('res-d2-def').textContent  = d2.definition;
+  $('res-d2-ex').textContent   = d2.example;
+  $('res-d2-more').href        = d2.readMore;
+  $('res-d2-more').textContent = '📖 Read more →';
+  showResultTab(1);
+
+  saveHistory(d.name, d2.name, score);
+  showScreen('screen-results');
+}
+
+// ── HISTORY
+function saveHistory(n1,n2,score) {
+  var h=loadHistory();
+  h.unshift({name1:n1,name2:n2,score:score,date:new Date().toISOString()});
+  if(h.length>50) h.length=50;
+  try{ localStorage.setItem('cm_history',JSON.stringify(h)); }catch(e){}
+}
+function loadHistory() {
+  try{ return JSON.parse(localStorage.getItem('cm_history')||'[]'); }catch(e){ return []; }
+}
+function renderHistory() {
+  var h=loadHistory(), el=$('history-list');
+  if(!h.length){ el.innerHTML='<div class="history-empty">No practice sessions yet.<br>Start your first quiz to track progress!</div>'; return; }
+  el.innerHTML=h.map(function(item){
+    var ds=new Date(item.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    var win=item.score===2;
+    var icon=item.score===2?'🎉':item.score===1?'🌟':'🌱';
+    var label=(item.name1||'')+(item.name2?' & '+item.name2:'');
+    return '<div class="history-item">'
+      +'<div class="hi-badge '+(win?'win':'lose')+'">'+icon+'</div>'
+      +'<div class="hi-body"><div class="hi-name">'+label+'</div><div class="hi-date">'+ds+'</div></div>'
+      +'<div class="hi-score '+(win?'win':'lose')+'">'+item.score+'/2</div>'
+      +'</div>';
+  }).join('');
+}
+
+// ── WHATSAPP
+function sendWhatsApp() {
+  var d=state.current, d2=state.current2;
+  var score=(state.q1Correct?1:0)+(state.q2Correct?1:0);
+  var msg=[
+    '*ClearMind Quiz Results*',
+    'Score: '+score+'/2',
+    '',
+    'Q1 '+(state.q1Correct?'[correct]':'[missed]')+' — '+(d?d.name:'?'),
+    d?d.definition:'',
+    '',
+    'Q2 '+(state.q2Correct?'[correct]':'[missed]')+' — '+(d2?d2.name:'?'),
+    d2?d2.definition:''
+  ].join('\n');
+  window.open('https://wa.me/40749255366?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ── EMAIL
+function sendEmail() {
+  var to=$('email-to').value.trim(), cc=$('email-cc').value.trim();
+  if(!to||to.indexOf('@')===-1){ showStatus('email-status','error','Please enter a valid email address.'); return; }
+  var d=state.current||DISTORTIONS[0], d2=state.current2||DISTORTIONS[1];
+  var score=(state.q1Correct?1:0)+(state.q2Correct?1:0);
+  var freq=$('email-freq').value;
+  var timeEl=$('email-time'), time=timeEl.options[timeEl.selectedIndex].text;
+  var subj='ClearMind Results — '+d.name+' & '+d2.name;
+  var body=['ClearMind Quiz Results','Score: '+score+'/2','',
+    'Q1 — '+d.name, d.definition,'','Q2 — '+d2.name, d2.definition,'',
+    'Schedule: '+time+', every '+(freq==='1'?'day':freq+' days'),
+    'www.psyalexsimion.com'].join('\n');
+  var cfg=loadConfig();
+  if(cfg.ejsKey&&cfg.ejsService&&cfg.ejsTemplate){
+    $('email-btn-txt').style.display='none'; $('email-btn-spin').style.display='inline-block';
+    emailjs.init(cfg.ejsKey);
+    emailjs.send(cfg.ejsService,cfg.ejsTemplate,{
+      to_email:to,cc_email:cc,distortion_name:d.name+' & '+d2.name,
+      distortion_def:d.definition,distortion_example:d.example,quiz_link:'https://psyalexsimion.com'
+    }).then(function(){
+      $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
+      showStatus('email-status','success','Email sent successfully!');
+    },function(err){
+      $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
+      showStatus('email-status','error','EmailJS error: '+(err.text||err.message||'Unknown')+'. Falling back to mailto.');
+      openMailto(to,cc,subj,body);
+    });
+  } else {
+    openMailto(to,cc,subj,body);
+    showStatus('email-status','info','Your email client should open. Configure EmailJS in Setup for direct sending.');
+  }
+}
+function openMailto(to,cc,subj,body){
+  var p='?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)+(cc?'&cc='+encodeURIComponent(cc):'');
+  window.open('mailto:'+encodeURIComponent(to)+p,'_blank');
+}
+
+// ── CONFIG
+function saveConfig(){
+  var cfg={ejsKey:$('ejs-public-key').value.trim(),ejsService:$('ejs-service-id').value.trim(),ejsTemplate:$('ejs-template-id').value.trim()};
+  try{ localStorage.setItem('cm_config',JSON.stringify(cfg)); }catch(e){}
+  var s=$('config-saved'); if(s){ s.className='status-msg success show'; s.textContent='Configuration saved.'; setTimeout(function(){ s.className='status-msg'; },3000); }
+}
+function loadConfig(){ try{ return JSON.parse(localStorage.getItem('cm_config')||'{}'); }catch(e){ return {}; } }
+function applyConfig(){
+  var cfg=loadConfig();
+  if($('ejs-public-key'))  $('ejs-public-key').value  = cfg.ejsKey||'';
+  if($('ejs-service-id'))  $('ejs-service-id').value  = cfg.ejsService||'';
+  if($('ejs-template-id')) $('ejs-template-id').value = cfg.ejsTemplate||'';
+  var em=''; try{ em=localStorage.getItem('cm_email_to')||''; }catch(e){}
+  if($('email-to')&&em) $('email-to').value=em;
+}
+document.addEventListener('DOMContentLoaded',function(){
+  applyConfig();
+  var ei=$('email-to');
+  if(ei) ei.addEventListener('input',function(){ try{ localStorage.setItem('cm_email_to',ei.value.trim()); }catch(e){} });
+});
+</script>
+</body>
+</html>
