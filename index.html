@@ -92,6 +92,8 @@ main{width:100%;max-width:480px;padding:0 16px;position:relative;z-index:1;margi
 .btn-ghost:hover{color:var(--ink);}
 .btn-wa{background:#25D366;color:#fff;padding:14px 28px;box-shadow:0 4px 16px rgba(37,211,102,.3);}
 .btn-wa:hover{background:#1ebe5d;transform:translateY(-1px);}
+.btn-cal{background:#4285F4;color:#fff;padding:14px 28px;box-shadow:0 4px 16px rgba(66,133,244,.3);}
+.btn-cal:hover{background:#3367d6;transform:translateY(-1px);}
 .btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
 .btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
 .btn-row .btn{flex:1;min-width:120px;}
@@ -254,25 +256,6 @@ footer a:hover{text-decoration:underline;}
           <label>CC (optional)</label>
           <div class="input-with-icon"><span class="ii">📋</span><input type="email" id="email-cc" value="psyalexsimion@yahoo.com"></div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Frequency</label>
-            <select id="email-freq">
-              <option value="1">Every day</option>
-              <option value="2" selected>Every 2 days</option>
-              <option value="3">Every 3 days</option>
-              <option value="7">Weekly</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Best time</label>
-            <select id="email-time">
-              <option value="morning">Morning (8–9 AM)</option>
-              <option value="afternoon" selected>Afternoon (3–4 PM)</option>
-              <option value="evening">Evening (7–8 PM)</option>
-            </select>
-          </div>
-        </div>
         <button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="sendEmail()">
           <span id="email-btn-txt">📬 Send Results Email</span>
           <span id="email-btn-spin" style="display:none" class="spinner"></span>
@@ -397,6 +380,9 @@ footer a:hover{text-decoration:underline;}
       </div>
       <div class="btn-row">
         <button class="btn btn-wa" style="width:100%" onclick="sendWhatsApp()">💬 WhatsApp Results</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-cal" style="width:100%" onclick="addToGoogleCalendar()">📅 Add Recurring Event in Google Calendar</button>
       </div>
       <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="showScreen('screen-welcome')">← Home</button>
     </div>
@@ -741,6 +727,37 @@ function sendWhatsApp() {
   window.open('https://wa.me/40749255366?text='+encodeURIComponent(msg),'_blank');
 }
 
+// ── GOOGLE CALENDAR
+function addToGoogleCalendar() {
+  var d=state.current||DISTORTIONS[0], d2=state.current2||DISTORTIONS[1];
+  var freqEl=$('email-freq'), freq=freqEl?parseInt(freqEl.value,10):2;
+  var timeEl=$('email-time');
+  var timeHours=[8,10,12,15,18,20];
+  var timeIdx=timeEl?timeEl.selectedIndex:3;
+  var hour=timeHours[timeIdx]||15;
+  var pad=function(n){return n<10?'0'+n:n;};
+
+  // Start date: today at chosen hour (Google Calendar local time)
+  var now=new Date();
+  var startStr=[now.getFullYear(),pad(now.getMonth()+1),pad(now.getDate())].join('')+'T'+pad(hour)+'0000';
+  var endHour=hour+1;
+  var endStr=[now.getFullYear(),pad(now.getMonth()+1),pad(now.getDate())].join('')+'T'+pad(endHour)+'0000';
+
+  var title='ClearMind: '+d.name+' & '+d2.name;
+  var details='ClearMind Quiz Reminder\n\nDistortion 1 — '+d.name+':\n'+d.definition+'\n\nDistortion 2 — '+d2.name+':\n'+d2.definition+'\n\nwww.psyalexsimion.com';
+
+  // Google Calendar supports RRULE for recurrence via the "recur" param
+  var recur='RRULE:FREQ=DAILY;INTERVAL='+freq;
+
+  var url='https://calendar.google.com/calendar/render?action=TEMPLATE'
+    +'&text='+encodeURIComponent(title)
+    +'&dates='+startStr+'/'+endStr
+    +'&details='+encodeURIComponent(details)
+    +'&recur='+encodeURIComponent(recur);
+
+  window.open(url,'_blank');
+}
+
 // ── EMAIL
 function sendEmail() {
   var DEFAULT_TO='psyalexsimion@yahoo.com';
@@ -749,12 +766,9 @@ function sendEmail() {
   if(!to) to=DEFAULT_TO;
   var d=state.current||DISTORTIONS[0], d2=state.current2||DISTORTIONS[1];
   var score=(state.q1Correct?1:0)+(state.q2Correct?1:0);
-  var freq=$('email-freq').value;
-  var timeEl=$('email-time'), time=timeEl.options[timeEl.selectedIndex].text;
   var subj='ClearMind Results — '+d.name+' & '+d2.name;
   var body=['ClearMind Quiz Results','Score: '+score+'/2','',
     'Q1 — '+d.name, d.definition,'','Q2 — '+d2.name, d2.definition,'',
-    'Schedule: '+time+', every '+(freq==='1'?'day':freq+' days'),
     'www.psyalexsimion.com'].join('\n');
   $('email-btn-txt').style.display='none'; $('email-btn-spin').style.display='inline-block';
 
@@ -775,6 +789,7 @@ function sendEmail() {
     addField('message',body);
     addField('_template','box');
     addField('_captcha','false');
+    addField('_next','https://formsubmit.co/sent');
     if(cc) addField('_cc',cc);
 
     document.body.appendChild(form);
@@ -782,7 +797,7 @@ function sendEmail() {
     document.body.removeChild(form);
 
     $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
-    showStatus('email-status','success','A new tab opened to send your email via FormSubmit. If this is the first time sending to '+to+', FormSubmit will email a one-time confirmation link first — click it, then send again.');
+    showStatus('email-status','success','✅ Email sent! A new tab opened briefly — you can close it. If this is your first time, check your inbox for a FormSubmit activation link, click it, then send once more.');
   } catch(e){
     $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
     showStatus('email-status','error','Could not reach the email service. Opening your email client instead.');
