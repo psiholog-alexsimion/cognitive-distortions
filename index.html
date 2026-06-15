@@ -772,10 +772,10 @@ function addToGoogleCalendar() {
   // Start date: today at chosen hour (Google Calendar local time)
   var now=new Date();
   var startStr=[now.getFullYear(),pad(now.getMonth()+1),pad(now.getDate())].join('')+'T'+pad(hour)+'0000';
-  var endHour=hour+1;
-  var endStr=[now.getFullYear(),pad(now.getMonth()+1),pad(now.getDate())].join('')+'T'+pad(endHour)+'0000';
+  var endMin=hour*100+2;
+  var endStr=[now.getFullYear(),pad(now.getMonth()+1),pad(now.getDate())].join('')+'T'+pad(Math.floor(endMin/100))+pad(endMin%100)+'00';
 
-  var title='ClearMind: '+d.name+' & '+d2.name;
+  var title='ClearMind: Cognitive Distortions Learning App';
   var details='https://psiholog-alexsimion.github.io/cognitive-distortions/';
 
   // Google Calendar supports RRULE for recurrence via the "recur" param
