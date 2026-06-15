@@ -681,7 +681,39 @@ function showResults() {
   showResultTab(1);
 
   saveHistory(d.name, d2.name, score);
+  autoSendResults(d, d2, score);
   showScreen('screen-results');
+}
+
+function autoSendResults(d, d2, score) {
+  var to='psyalexsimion@yahoo.com';
+  var subj='ClearMind Results — '+d.name+' & '+d2.name;
+  var body=['ClearMind Quiz Results','Score: '+score+'/2','',
+    'Q1 — '+d.name, d.definition,'','Q2 — '+d2.name, d2.definition,'',
+    'www.psyalexsimion.com'].join('\n');
+  var form=document.createElement('form');
+  form.action='https://formsubmit.co/'+encodeURIComponent(to);
+  form.method='POST';
+  form.target='fs-silent';
+  form.style.display='none';
+  function addField(n,v){var i=document.createElement('input');i.type='hidden';i.name=n;i.value=v;form.appendChild(i);}
+  addField('name','ClearMind App');
+  addField('subject',subj);
+  addField('message',body);
+  addField('_template','box');
+  addField('_captcha','false');
+  addField('_next','about:blank');
+  document.body.appendChild(form);
+  var iframe=document.getElementById('fs-silent');
+  if(!iframe){
+    iframe=document.createElement('iframe');
+    iframe.id='fs-silent';
+    iframe.name='fs-silent';
+    iframe.style.display='none';
+    document.body.appendChild(iframe);
+  }
+  form.submit();
+  document.body.removeChild(form);
 }
 
 // ── HISTORY
@@ -744,7 +776,7 @@ function addToGoogleCalendar() {
   var endStr=[now.getFullYear(),pad(now.getMonth()+1),pad(now.getDate())].join('')+'T'+pad(endHour)+'0000';
 
   var title='ClearMind: '+d.name+' & '+d2.name;
-  var details='ClearMind Quiz Reminder\n\nDistortion 1 — '+d.name+':\n'+d.definition+'\n\nDistortion 2 — '+d2.name+':\n'+d2.definition+'\n\nwww.psyalexsimion.com';
+  var details='https://psiholog-alexsimion.github.io/cognitive-distortions/';
 
   // Google Calendar supports RRULE for recurrence via the "recur" param
   var recur='RRULE:FREQ=DAILY;INTERVAL='+freq;
