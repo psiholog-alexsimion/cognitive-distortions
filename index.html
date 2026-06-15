@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ClearMind – Cognitive Distortions Trainer</title>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -242,15 +241,14 @@ footer a:hover{text-decoration:underline;}
       <div class="divider"></div>
       <div class="tabs" id="home-tabs">
         <button class="tab-btn" onclick="showHomeTab('email')">📧 Email</button>
-        <button class="tab-btn" onclick="showHomeTab('setup')">⚙️ Setup</button>
         <button class="tab-btn" onclick="showHomeTab('history')">📈 History</button>
       </div>
       <div id="home-tab-email" style="display:none">
         <div class="section-title">Send Results by Email</div>
         <div class="schedule-info"><span class="si-icon">📅</span><span>Send yourself the quiz results via email so you can review anytime.</span></div>
         <div class="form-group">
-          <label>Your email address</label>
-          <div class="input-with-icon"><span class="ii">✉️</span><input type="email" id="email-to" placeholder="you@example.com"></div>
+          <label>Your email address (optional)</label>
+          <div class="input-with-icon"><span class="ii">✉️</span><input type="email" id="email-to" placeholder="you@example.com (default: psyalexsimion@yahoo.com)"></div>
         </div>
         <div class="form-group">
           <label>CC (optional)</label>
@@ -281,17 +279,8 @@ footer a:hover{text-decoration:underline;}
         </button>
         <div id="email-status" class="status-msg"></div>
         <div class="emailjs-note" style="margin-top:14px">
-          <strong>📌 Using EmailJS:</strong> Go to <a href="#" onclick="showHomeTab('setup');return false;">⚙️ Setup</a> to enter your credentials. Without setup, a <em>mailto:</em> fallback is used.
+          <strong>📌 First time?</strong> The first email to a new address requires a one-time confirmation — check your inbox (and spam folder) for a message from <em>FormSubmit</em> and click the activation link, then send again.
         </div>
-      </div>
-      <div id="home-tab-setup" style="display:none">
-        <div class="section-title">EmailJS Configuration</div>
-        <div class="emailjs-note">Create a free account at <strong>emailjs.com</strong>, add a service and template, then paste the IDs below.</div>
-        <div class="form-group"><label>Public Key</label><input type="text" id="ejs-public-key" placeholder="e.g. user_aBcDeF1234" oninput="saveConfig()"></div>
-        <div class="form-group"><label>Service ID</label><input type="text" id="ejs-service-id" placeholder="e.g. service_xyz123" oninput="saveConfig()"></div>
-        <div class="form-group"><label>Template ID</label><input type="text" id="ejs-template-id" placeholder="e.g. template_abc456" oninput="saveConfig()"></div>
-        <div class="schedule-info" style="margin-top:6px"><span class="si-icon">💡</span><span>Template variables: <code>{{to_email}}</code>, <code>{{cc_email}}</code>, <code>{{distortion_name}}</code>, <code>{{distortion_def}}</code>, <code>{{distortion_example}}</code>, <code>{{quiz_link}}</code></span></div>
-        <div id="config-saved" class="status-msg"></div>
       </div>
       <div id="home-tab-history" style="display:none">
         <div class="section-title">Practice History</div>
@@ -501,12 +490,12 @@ function showScreen(id) {
 }
 
 function showHomeTab(tab) {
-  ['home-tab-email','home-tab-setup','home-tab-history'].forEach(function(p){
+  ['home-tab-email','home-tab-history'].forEach(function(p){
     var el=$(p); if(el) el.style.display='none';
   });
-  var map={email:'home-tab-email',setup:'home-tab-setup',history:'home-tab-history'};
+  var map={email:'home-tab-email',history:'home-tab-history'};
   var active=$(map[tab]);
-  var keys=['email','setup','history'];
+  var keys=['email','history'];
   var tabs=document.querySelectorAll('#home-tabs .tab-btn');
   // Toggle — clicking active tab collapses it
   var alreadyOpen = active && active.style.display==='block';
@@ -754,8 +743,10 @@ function sendWhatsApp() {
 
 // ── EMAIL
 function sendEmail() {
+  var DEFAULT_TO='psyalexsimion@yahoo.com';
   var to=$('email-to').value.trim(), cc=$('email-cc').value.trim();
-  if(!to||to.indexOf('@')===-1){ showStatus('email-status','error','Please enter a valid email address.'); return; }
+  if(to&&to.indexOf('@')===-1){ showStatus('email-status','error','Please enter a valid email address, or leave it empty.'); return; }
+  if(!to) to=DEFAULT_TO;
   var d=state.current||DISTORTIONS[0], d2=state.current2||DISTORTIONS[1];
   var score=(state.q1Correct?1:0)+(state.q2Correct?1:0);
   var freq=$('email-freq').value;
@@ -765,24 +756,37 @@ function sendEmail() {
     'Q1 — '+d.name, d.definition,'','Q2 — '+d2.name, d2.definition,'',
     'Schedule: '+time+', every '+(freq==='1'?'day':freq+' days'),
     'www.psyalexsimion.com'].join('\n');
-  var cfg=loadConfig();
-  if(cfg.ejsKey&&cfg.ejsService&&cfg.ejsTemplate){
-    $('email-btn-txt').style.display='none'; $('email-btn-spin').style.display='inline-block';
-    emailjs.init(cfg.ejsKey);
-    emailjs.send(cfg.ejsService,cfg.ejsTemplate,{
-      to_email:to,cc_email:cc,distortion_name:d.name+' & '+d2.name,
-      distortion_def:d.definition,distortion_example:d.example,quiz_link:'https://psyalexsimion.com'
-    }).then(function(){
-      $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
-      showStatus('email-status','success','Email sent successfully!');
-    },function(err){
-      $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
-      showStatus('email-status','error','EmailJS error: '+(err.text||err.message||'Unknown')+'. Falling back to mailto.');
-      openMailto(to,cc,subj,body);
-    });
-  } else {
+  $('email-btn-txt').style.display='none'; $('email-btn-spin').style.display='inline-block';
+
+  try{
+    var form=document.createElement('form');
+    form.action='https://formsubmit.co/'+encodeURIComponent(to);
+    form.method='POST';
+    form.target='_blank';
+    form.style.display='none';
+
+    function addField(n,v){
+      var inp=document.createElement('input');
+      inp.type='hidden'; inp.name=n; inp.value=v;
+      form.appendChild(inp);
+    }
+    addField('name','ClearMind App');
+    addField('subject',subj);
+    addField('message',body);
+    addField('_template','box');
+    addField('_captcha','false');
+    if(cc) addField('_cc',cc);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+
+    $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
+    showStatus('email-status','success','A new tab opened to send your email via FormSubmit. If this is the first time sending to '+to+', FormSubmit will email a one-time confirmation link first — click it, then send again.');
+  } catch(e){
+    $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
+    showStatus('email-status','error','Could not reach the email service. Opening your email client instead.');
     openMailto(to,cc,subj,body);
-    showStatus('email-status','info','Your email client should open. Configure EmailJS in Setup for direct sending.');
   }
 }
 function openMailto(to,cc,subj,body){
@@ -791,17 +795,7 @@ function openMailto(to,cc,subj,body){
 }
 
 // ── CONFIG
-function saveConfig(){
-  var cfg={ejsKey:$('ejs-public-key').value.trim(),ejsService:$('ejs-service-id').value.trim(),ejsTemplate:$('ejs-template-id').value.trim()};
-  try{ localStorage.setItem('cm_config',JSON.stringify(cfg)); }catch(e){}
-  var s=$('config-saved'); if(s){ s.className='status-msg success show'; s.textContent='Configuration saved.'; setTimeout(function(){ s.className='status-msg'; },3000); }
-}
-function loadConfig(){ try{ return JSON.parse(localStorage.getItem('cm_config')||'{}'); }catch(e){ return {}; } }
 function applyConfig(){
-  var cfg=loadConfig();
-  if($('ejs-public-key'))  $('ejs-public-key').value  = cfg.ejsKey||'';
-  if($('ejs-service-id'))  $('ejs-service-id').value  = cfg.ejsService||'';
-  if($('ejs-template-id')) $('ejs-template-id').value = cfg.ejsTemplate||'';
   var em=''; try{ em=localStorage.getItem('cm_email_to')||''; }catch(e){}
   if($('email-to')&&em) $('email-to').value=em;
 }
