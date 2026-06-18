@@ -202,16 +202,22 @@ main{width:100%;max-width:480px;padding:0 16px;position:relative;z-index:1;margi
 footer{margin-top:40px;text-align:center;font-size:.78rem;color:var(--ink-muted);position:relative;z-index:1;}
 footer a{color:var(--accent);text-decoration:none;font-weight:500;}
 footer a:hover{text-decoration:underline;}
+.lang-toggle{position:fixed;top:14px;right:16px;z-index:200;background:var(--surface);border:1.5px solid var(--border);border-radius:99px;padding:6px 14px;font-family:var(--font-body);cursor:pointer;box-shadow:0 2px 8px rgba(26,20,16,.10);transition:all var(--transition);display:flex;align-items:center;gap:5px;line-height:1;}
+.lang-toggle:hover{border-color:var(--accent);}
+.lang-active{font-size:.9rem;font-weight:700;color:var(--ink);}
+.lang-inactive{font-size:.72rem;font-weight:400;color:var(--ink-muted);opacity:.65;}
 @media(max-width:360px){header h1{font-size:1.9rem;}.question-text{font-size:1.2rem;}.card{padding:22px 18px;}.btn{font-size:.84rem;}}
 @media(min-width:480px){main{padding:0;}}
 </style>
 </head>
 <body>
 
+<button class="lang-toggle" id="lang-toggle-btn" onclick="toggleLang()"><span class="lang-active">EN</span><span class="lang-inactive">ro</span></button>
+
 <header>
   <div class="logo-eyebrow">🧠 ClearMind</div>
-  <h1>Train Your <em>Mind</em></h1>
-  <p class="tagline">Recognize & reframe cognitive distortions — one day at a time</p>
+  <h1 data-i18n="header_h1">Train Your <em>Mind</em></h1>
+  <p class="tagline" data-i18n="header_tagline">Recognize & reframe cognitive distortions — one day at a time</p>
 </header>
 
 <main>
@@ -219,11 +225,11 @@ footer a:hover{text-decoration:underline;}
   <!-- CONFIRM DIALOG -->
   <div class="confirm-overlay" id="confirm-overlay">
     <div class="confirm-box">
-      <h3>Leave the quiz?</h3>
-      <p>Your current progress will be lost. Are you sure you want to go home?</p>
+      <h3 data-i18n="confirm_title">Leave the quiz?</h3>
+      <p data-i18n="confirm_body">Your current progress will be lost. Are you sure you want to go home?</p>
       <div class="confirm-row">
-        <button class="btn btn-secondary" onclick="closeConfirm()">Keep going</button>
-        <button class="btn btn-primary" onclick="confirmHome()">Yes, go home</button>
+        <button class="btn btn-secondary" onclick="closeConfirm()" data-i18n="confirm_keep">Keep going</button>
+        <button class="btn btn-primary" onclick="confirmHome()" data-i18n="confirm_yes">Yes, go home</button>
       </div>
     </div>
   </div>
@@ -232,41 +238,41 @@ footer a:hover{text-decoration:underline;}
   <div id="screen-welcome" class="screen active">
     <div class="card animate">
       <div class="welcome-icon">🌿</div>
-      <div class="welcome-title">Welcome to ClearMind</div>
-      <div class="welcome-body">A daily practice to recognize the thought traps that keep us stuck — based on CBT research and the <em>50 Common Cognitive Distortions</em>.</div>
+      <div class="welcome-title" data-i18n="welcome_title">Welcome to ClearMind</div>
+      <div class="welcome-body" data-i18n="welcome_body">A daily practice to recognize the thought traps that keep us stuck — based on CBT research and the <em>50 Common Cognitive Distortions</em>.</div>
       <ul class="feature-list">
-        <li><span class="fi">🎯</span><span>Two-question quiz on random cognitive distortions</span></li>
-        <li><span class="fi">💡</span><span>Instant feedback with real-world examples</span></li>
-        <li><span class="fi">📧</span><span>Email or WhatsApp your results anytime</span></li>
+        <li><span class="fi">🎯</span><span data-i18n="feat1">Two-question quiz on random cognitive distortions</span></li>
+        <li><span class="fi">💡</span><span data-i18n="feat2">Instant feedback with real-world examples</span></li>
+        <li><span class="fi">📧</span><span data-i18n="feat3">Email or WhatsApp your results anytime</span></li>
       </ul>
-      <button class="btn btn-primary" style="width:100%" onclick="startQuiz()">Start Today's Quiz →</button>
+      <button class="btn btn-primary" style="width:100%" onclick="startQuiz()" data-i18n="start_btn">Start Today's Quiz →</button>
       <div class="divider"></div>
       <div class="tabs" id="home-tabs">
-        <button class="tab-btn" onclick="showHomeTab('email')">📧 Email</button>
-        <button class="tab-btn" onclick="showHomeTab('history')">📈 History</button>
+        <button class="tab-btn" onclick="showHomeTab('email')" data-i18n="tab_email">📧 Email</button>
+        <button class="tab-btn" onclick="showHomeTab('history')" data-i18n="tab_history">📈 History</button>
       </div>
       <div id="home-tab-email" style="display:none">
-        <div class="section-title">Send Results by Email</div>
-        <div class="schedule-info"><span class="si-icon">📅</span><span>Send yourself the quiz results via email so you can review anytime.</span></div>
+        <div class="section-title" data-i18n="email_section_title">Send Results by Email</div>
+        <div class="schedule-info"><span class="si-icon">📅</span><span data-i18n="email_info">Send yourself the quiz results via email so you can review anytime.</span></div>
         <div class="form-group">
-          <label>Your email address (optional)</label>
+          <label data-i18n="email_to_label">Your email address (optional)</label>
           <div class="input-with-icon"><span class="ii">✉️</span><input type="email" id="email-to" placeholder="you@example.com (default: psyalexsimion@yahoo.com)"></div>
         </div>
         <div class="form-group">
-          <label>CC (optional)</label>
+          <label data-i18n="email_cc_label">CC (optional)</label>
           <div class="input-with-icon"><span class="ii">📋</span><input type="email" id="email-cc" value="psyalexsimion@yahoo.com"></div>
         </div>
         <button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="sendEmail()">
-          <span id="email-btn-txt">📬 Send Results Email</span>
+          <span id="email-btn-txt" data-i18n="email_send_btn">📬 Send Results Email</span>
           <span id="email-btn-spin" style="display:none" class="spinner"></span>
         </button>
         <div id="email-status" class="status-msg"></div>
         <div class="emailjs-note" style="margin-top:14px">
-          <strong>📌 First time?</strong> The first email to a new address requires a one-time confirmation — check your inbox (and spam folder) for a message from <em>FormSubmit</em> and click the activation link, then send again.
+          <strong data-i18n="email_note_title">📌 First time?</strong> <span data-i18n="email_note_body">The first email to a new address requires a one-time confirmation — check your inbox (and spam folder) for a message from <em>FormSubmit</em> and click the activation link, then send again.</span>
         </div>
       </div>
       <div id="home-tab-history" style="display:none">
-        <div class="section-title">Practice History</div>
+        <div class="section-title" data-i18n="history_title">Practice History</div>
         <div id="history-list"></div>
       </div>
     </div>
@@ -284,17 +290,17 @@ footer a:hover{text-decoration:underline;}
         <div class="progress-bar"><div class="progress-fill" style="width:33%"></div></div>
         <span class="progress-label">1 / 2</span>
       </div>
-      <div class="distortion-label">Distortion 1 of 2 — <span id="q1-name-label"></span></div>
-      <div class="question-step-label">Name recognition</div>
+      <div class="distortion-label" id="q1-distortion-label">Distortion 1 of 2 — <span id="q1-name-label"></span></div>
+      <div class="question-step-label" data-i18n="q1_step_label">Name recognition</div>
       <div class="question-text" id="q1-text"></div>
-      <button class="btn-hint" id="q1-hint-btn" onclick="toggleHint('q1')">💡 Need a hint?</button>
+      <button class="btn-hint" id="q1-hint-btn" onclick="toggleHint('q1')" data-i18n="hint_btn">💡 Need a hint?</button>
       <div class="question-hint" id="q1-hint"><span class="hint-icon">💬</span><span id="q1-hint-text"></span></div>
       <ul class="options-list" id="q1-options"></ul>
       <div class="feedback-box" id="q1-feedback"></div>
       <div class="example-box" id="q1-example"></div>
       <div class="btn-row" id="q1-btn-row" style="display:none">
-        <button class="btn btn-ghost" onclick="askHome()">← Home</button>
-        <button class="btn btn-primary" id="q1-next-btn" onclick="goToQ2()">Next →</button>
+        <button class="btn btn-ghost" onclick="askHome()" data-i18n="home_btn">← Home</button>
+        <button class="btn btn-primary" id="q1-next-btn" onclick="goToQ2()" data-i18n="next_btn">Next →</button>
       </div>
     </div>
   </div>
@@ -311,18 +317,18 @@ footer a:hover{text-decoration:underline;}
         <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
         <span class="progress-label">2 / 2</span>
       </div>
-      <div class="distortion-label">Distortion 2 of 2 — <span id="q2-name-label"></span></div>
-      <div class="question-step-label">Definition recognition</div>
+      <div class="distortion-label" id="q2-distortion-label">Distortion 2 of 2 — <span id="q2-name-label"></span></div>
+      <div class="question-step-label" data-i18n="q2_step_label">Definition recognition</div>
       <div class="question-text" id="q2-text"></div>
       <div class="q2-context" id="q2-context"></div>
-      <button class="btn-hint" id="q2-hint-btn" onclick="toggleHint('q2')">💡 Need a hint?</button>
+      <button class="btn-hint" id="q2-hint-btn" onclick="toggleHint('q2')" data-i18n="hint_btn">💡 Need a hint?</button>
       <div class="question-hint" id="q2-hint"><span class="hint-icon">🔍</span><span id="q2-hint-text"></span></div>
       <ul class="options-list" id="q2-options"></ul>
       <div class="feedback-box" id="q2-feedback"></div>
       <div class="example-box" id="q2-example"></div>
       <div class="btn-row" id="q2-btn-row" style="display:none">
-        <button class="btn btn-ghost" onclick="askHome()">← Home</button>
-        <button class="btn btn-primary" onclick="showResults()">See Results →</button>
+        <button class="btn btn-ghost" onclick="askHome()" data-i18n="home_btn">← Home</button>
+        <button class="btn btn-primary" onclick="showResults()" data-i18n="see_results_btn">See Results →</button>
       </div>
     </div>
   </div>
@@ -339,24 +345,24 @@ footer a:hover{text-decoration:underline;}
       <div class="result-title" id="result-title"></div>
       <div class="result-subtitle" id="result-subtitle"></div>
       <div class="score-pills">
-        <div class="score-pill good"><span class="sp-num" id="res-correct">0</span><span class="sp-lbl">Correct</span></div>
-        <div class="score-pill bad"><span class="sp-num" id="res-wrong">0</span><span class="sp-lbl">Missed</span></div>
+        <div class="score-pill good"><span class="sp-num" id="res-correct">0</span><span class="sp-lbl" data-i18n="res_correct">Correct</span></div>
+        <div class="score-pill bad"><span class="sp-num" id="res-wrong">0</span><span class="sp-lbl" data-i18n="res_missed">Missed</span></div>
       </div>
       <!-- Per-question result badges -->
       <div class="q-score-row">
         <div class="q-score-badge" id="q1-result-badge">
           <span class="qsb-icon"></span>
-          <div><span class="qsb-label">Question 1</span><span id="q1-result-name"></span></div>
+          <div><span class="qsb-label" data-i18n="q1_label">Question 1</span><span id="q1-result-name"></span></div>
         </div>
         <div class="q-score-badge" id="q2-result-badge">
           <span class="qsb-icon"></span>
-          <div><span class="qsb-label">Question 2</span><span id="q2-result-name"></span></div>
+          <div><span class="qsb-label" data-i18n="q2_label">Question 2</span><span id="q2-result-name"></span></div>
         </div>
       </div>
       <!-- Distortion info tabs -->
       <div class="result-tabs">
-        <button class="result-tab-btn active" onclick="showResultTab(1)">Distortion 1</button>
-        <button class="result-tab-btn" onclick="showResultTab(2)">Distortion 2</button>
+        <button class="result-tab-btn active" onclick="showResultTab(1)" data-i18n="res_tab1">Distortion 1</button>
+        <button class="result-tab-btn" onclick="showResultTab(2)" data-i18n="res_tab2">Distortion 2</button>
       </div>
       <div id="res-tab-1">
         <div class="info-card">
@@ -375,24 +381,266 @@ footer a:hover{text-decoration:underline;}
         </div>
       </div>
       <div class="btn-row" style="margin-top:8px">
-        <button class="btn btn-secondary" onclick="startQuiz()">🔄 New Quiz</button>
-        <button class="btn btn-primary" onclick="showHomeTab('email');showScreen('screen-welcome')">📧 Email Results</button>
+        <button class="btn btn-secondary" onclick="startQuiz()" data-i18n="new_quiz_btn">🔄 New Quiz</button>
+        <button class="btn btn-primary" onclick="showHomeTab('email');showScreen('screen-welcome')" data-i18n="email_results_btn">📧 Email Results</button>
       </div>
       <div class="btn-row">
-        <button class="btn btn-wa" style="width:100%" onclick="sendWhatsApp()">💬 WhatsApp Results</button>
+        <button class="btn btn-wa" style="width:100%" onclick="sendWhatsApp()" data-i18n="wa_btn">💬 WhatsApp Results</button>
       </div>
       <div class="btn-row">
-        <button class="btn btn-cal" style="width:100%" onclick="addToGoogleCalendar()">📅 Add Recurring Event in Google Calendar</button>
+        <button class="btn btn-cal" style="width:100%" onclick="addToGoogleCalendar()" data-i18n="cal_btn">📅 Add Recurring Event in Google Calendar</button>
       </div>
-      <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="showScreen('screen-welcome')">← Home</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="showScreen('screen-welcome')" data-i18n="home_btn">← Home</button>
     </div>
   </div>
 
 </main>
 
-<footer>&copy; 2026 Created by <a href="https://www.psyalexsimion.com" target="_blank">Alex Simion</a></footer>
+<footer>&copy; 2026 <span data-i18n="footer_credit">Created by</span> <a href="https://www.psyalexsimion.com" target="_blank">Alex Simion</a></footer>
 
 <script>
+// ── I18N
+var lang = 'en';
+var T = {
+  en: {
+    lang_toggle: '🇷🇴 RO',
+    header_h1: 'Train Your <em>Mind</em>',
+    header_tagline: 'Recognize & reframe cognitive distortions — one day at a time',
+    confirm_title: 'Leave the quiz?',
+    confirm_body: 'Your current progress will be lost. Are you sure you want to go home?',
+    confirm_keep: 'Keep going',
+    confirm_yes: 'Yes, go home',
+    welcome_title: 'Welcome to ClearMind',
+    welcome_body: 'A daily practice to recognize the thought traps that keep us stuck — based on CBT research and the <em>50 Common Cognitive Distortions</em>.',
+    feat1: 'Two-question quiz on random cognitive distortions',
+    feat2: 'Instant feedback with real-world examples',
+    feat3: 'Email or WhatsApp your results anytime',
+    start_btn: 'Start Today\'s Quiz →',
+    email_section_title: 'Send Results by Email',
+    email_info: 'Send yourself the quiz results via email so you can review anytime.',
+    email_to_label: 'Your email address (optional)',
+    email_cc_label: 'CC (optional)',
+    email_send_btn: '📬 Send Results Email',
+    email_note_title: '📌 First time?',
+    email_note_body: 'The first email to a new address requires a one-time confirmation — check your inbox (and spam folder) for a message from <em>FormSubmit</em> and click the activation link, then send again.',
+    history_title: 'Practice History',
+    q1_step_label: 'Name recognition',
+    q2_step_label: 'Definition recognition',
+    hint_btn: '💡 Need a hint?',
+    hint_hide: '🙈 Hide hint',
+    home_btn: '← Home',
+    next_btn: 'Next →',
+    see_results_btn: 'See Results →',
+    res_correct: 'Correct',
+    res_missed: 'Missed',
+    q1_label: 'Question 1',
+    q2_label: 'Question 2',
+    res_tab1: 'Distortion 1',
+    res_tab2: 'Distortion 2',
+    new_quiz_btn: '🔄 New Quiz',
+    email_results_btn: '📧 Email Results',
+    wa_btn: '💬 WhatsApp Results',
+    cal_btn: '📅 Add Recurring Event in Google Calendar',
+    history_empty: 'No practice sessions yet.\nStart your first quiz to track progress!',
+    tab_email: '📧 Email',
+    tab_history: '📈 History',
+    distortion_label_1: 'Distortion 1 of 2 — ',
+    distortion_label_2: 'Distortion 2 of 2 — ',
+    q1_question_close: '"?',
+    q1_question: 'What best describes the distortion called "',
+    q2_question: 'Which cognitive distortion matches this description?',
+    distortion_of: 'Distortion',
+    of2: 'of 2',
+    fb_correct: 'Correct!',
+    fb_wrong: 'Not quite.',
+    fb_correct_q1: ' — ',
+    fb_wrong_q1: 'The correct definition is highlighted above. Also known as: ',
+    fb_correct_q2: 'You matched the definition to ',
+    fb_correct_q2b: ' accurately.',
+    fb_wrong_q2: 'The description belongs to ',
+    fb_wrong_q2b: ' — also known as ',
+    example_label: 'Real-life example:',
+    read_more: '📖 Read more →',
+    score_titles: ['Keep practicing!', 'Good effort!', 'Excellent!'],
+    score_subs: [
+      'Review both distortions below and try again tomorrow.',
+      'You got one right. One more session will nail both!',
+      'You correctly identified both distortions. Sharp CBT knowledge!'
+    ],
+    footer_credit: 'Created by',
+    email_status_ok: '✅ Email sent! A new tab opened briefly — you can close it. If this is your first time, check your inbox for a FormSubmit activation link, click it, then send once more.',
+    email_status_err: 'Could not reach the email service. Opening your email client instead.',
+    email_invalid: 'Please enter a valid email address, or leave it empty.'
+  },
+  ro: {
+    lang_toggle: '🇬🇧 EN',
+    header_h1: 'Antrenează-ți <em>Mintea</em>',
+    header_tagline: 'Recunoaște și reformulează distorsiunile cognitive — zi de zi',
+    confirm_title: 'Ieși din test?',
+    confirm_body: 'Progresul tău va fi pierdut. Ești sigur că vrei să mergi acasă?',
+    confirm_keep: 'Continuă',
+    confirm_yes: 'Da, mergi acasă',
+    welcome_title: 'Bun venit la ClearMind',
+    welcome_body: 'O practică zilnică pentru a recunoaște capcanele gândirii — bazată pe principiile TCC și <em>50 de Distorsiuni Cognitive Comune</em>.',
+    feat1: 'Test cu două întrebări despre distorsiuni cognitive aleatorii',
+    feat2: 'Feedback instant cu exemple din viața reală',
+    feat3: 'Trimite rezultatele prin email sau WhatsApp oricând',
+    start_btn: 'Începe Testul de Azi →',
+    email_section_title: 'Trimite Rezultatele pe Email',
+    email_info: 'Trimite-ți rezultatele testului prin email pentru a le revizui oricând.',
+    email_to_label: 'Adresa ta de email (opțional)',
+    email_cc_label: 'CC (opțional)',
+    email_send_btn: '📬 Trimite Email cu Rezultate',
+    email_note_title: '📌 Prima dată?',
+    email_note_body: 'Prima trimitere la o adresă nouă necesită o confirmare unică — verifică inbox-ul (și spam) pentru un mesaj de la <em>FormSubmit</em> și apasă linkul de activare, apoi trimite din nou.',
+    history_title: 'Istoric de practică',
+    q1_step_label: 'Recunoașterea numelui',
+    q2_step_label: 'Recunoașterea definiției',
+    hint_btn: '💡 Ai nevoie de un indiciu?',
+    hint_hide: '🙈 Ascunde indiciul',
+    home_btn: '← Acasă',
+    next_btn: 'Înainte →',
+    see_results_btn: 'Vezi Rezultatele →',
+    res_correct: 'Corecte',
+    res_missed: 'Greșite',
+    q1_label: 'Întrebarea 1',
+    q2_label: 'Întrebarea 2',
+    res_tab1: 'Distorsiunea 1',
+    res_tab2: 'Distorsiunea 2',
+    new_quiz_btn: '🔄 Test Nou',
+    email_results_btn: '📧 Trimite Rezultate',
+    wa_btn: '💬 Rezultate pe WhatsApp',
+    cal_btn: '📅 Adaugă Eveniment Recurent în Google Calendar',
+    history_empty: 'Nicio sesiune de practică încă.\nÎncepe primul tău test pentru a urmări progresul!',
+    tab_email: '📧 Email',
+    tab_history: '📈 Istoric',
+    distortion_label_1: 'Distorsiunea 1 din 2 — ',
+    distortion_label_2: 'Distorsiunea 2 din 2 — ',
+    q1_question_close: '”?',
+    q1_question: 'Ce descrie cel mai bine distorsiunea numită „',
+    q2_question: 'Ce distorsiune cognitivă corespunde acestei descrieri?',
+    distortion_of: 'Distorsiunea',
+    of2: 'din 2',
+    fb_correct: 'Corect!',
+    fb_wrong: 'Nu chiar.',
+    fb_correct_q1: ' — ',
+    fb_wrong_q1: 'Definiția corectă este marcată mai sus. Cunoscută și ca: ',
+    fb_correct_q2: 'Ai asociat definiția cu ',
+    fb_correct_q2b: ' corect.',
+    fb_wrong_q2: 'Descrierea aparține distorsiunii ',
+    fb_wrong_q2b: ' — cunoscută și ca ',
+    example_label: 'Exemplu din viața reală:',
+    read_more: '📖 Citește mai mult →',
+    score_titles: ['Continuă să exersezi!', 'Efort bun!', 'Excelent!'],
+    score_subs: [
+      'Revizuiește ambele distorsiuni de mai jos și încearcă din nou mâine.',
+      'Ai obținut un răspuns corect. Încă o sesiune și le vei stăpâni pe amândouă!',
+      'Ai identificat corect ambele distorsiuni. Cunoștințe TCC solide!'
+    ],
+    footer_credit: 'Creat de',
+    email_status_ok: '✅ Email trimis! O filă nouă s-a deschis pentru scurt timp — o poți închide. Dacă este prima dată, verifică inbox-ul pentru linkul de activare FormSubmit, apasă-l, apoi trimite din nou.',
+    email_status_err: 'Nu s-a putut contacta serviciul de email. Se deschide clientul tău de email.',
+    email_invalid: 'Introdu o adresă de email validă sau lasă câmpul gol.'
+  }
+};
+
+function t(key) { return (T[lang] && T[lang][key]) || T.en[key] || key; }
+
+function applyLang() {
+  var btn = document.getElementById('lang-toggle-btn');
+  if (lang === 'en') {
+    btn.innerHTML = '<span class="lang-active">EN</span><span class="lang-inactive">ro</span>';
+  } else {
+    btn.innerHTML = '<span class="lang-inactive">en</span><span class="lang-active">RO</span>';
+  }
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var val = t(key);
+    if (el.tagName === 'INPUT') { el.placeholder = val; }
+    else { el.innerHTML = val; }
+  });
+  // Update distortion labels if quiz is active
+  var d = state.current, d2 = state.current2;
+  var dl1 = document.getElementById('q1-distortion-label');
+  var dl2 = document.getElementById('q2-distortion-label');
+  if (dl1 && d) dl1.innerHTML = t('distortion_label_1')+'<span id="q1-name-label">'+d.name+'</span>';
+  if (dl2 && d2) dl2.innerHTML = t('distortion_label_2')+'<span id="q2-name-label">'+(state.q2revealed ? d2.name : '?')+'</span>';
+}
+
+function toggleLang() {
+  lang = lang === 'en' ? 'ro' : 'en';
+  applyLang();
+  // Rebuild any active quiz screen with current language
+  if (state.current)  { buildQ1(); buildQ2(); }
+  if (document.getElementById('screen-results').classList.contains('active')) {
+    showResults();
+  }
+  var histTab = document.getElementById('home-tab-history');
+  if (histTab && histTab.style.display === 'block') renderHistory();
+}
+
+function D() { return lang === 'ro' ? DISTORTIONS_RO : DISTORTIONS; }
+
+var DISTORTIONS_RO = [
+  { name:"Gândire Totul-sau-Nimic", aka:"Gândire alb-negru", definition:"A evalua experiențele în categorii extreme și absolute — perfect sau lipsit de valoare, succes sau eșec — fără loc pentru mijlocul care reflectă viața reală.", example:"\"Am mâncat un biscuit de pe dietă. Toată săptămâna e compromisă — nu am nicio voință.\"", hint1:"Caută cuvinte absolute: mereu, niciodată, complet, total, lipsit de valoare, perfect.", hint2:"Definiția descrie o absență totală a nuanțelor — există doar negru sau alb.", readMore:"https://positivepsychology.com/cognitive-distortions/#all-or-nothing" },
+  { name:"Scindare", aka:"Idealizare și devalorizare", definition:"A oscila între a vedea o persoană ca absolut minunată și absolut fără valoare — incapacitatea de a păstra o viziune echilibrată asupra aceluiași individ.", example:"\"Terapeuta mea m-a înțeles perfect luni de zile. Acum că m-a provocat, e complet incompetentă și nu îi pasă deloc.\"", hint1:"Observă schimbarea bruscă și totală de la idealizare la dispreț, fără mijloc.", hint2:"Aceeași persoană este mai întâi perfectă, apoi lipsită de valoare — fără nicio viziune nuanțată.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Filtru Mental", aka:"Abstractizare selectivă", definition:"A te fixa pe un singur detaliu negativ și a-l amplifica atât de mult încât imaginea de ansamblu devine distorsionată — ca o picătură de cerneală care tulbură un pahar cu apă.", example:"\"Supervizorul a lăudat tot raportul, dar a spus că o secțiune are nevoie de mai multe date. Nu mă pot opri să mă gândesc la acea singură critică.\"", hint1:"Persoana se concentrează pe un singur detaliu negativ și nu poate vedea nimic altceva.", hint2:"Un detaliu negativ este extras și amplificat până eclipsează orice aspect pozitiv.", readMore:"https://positivepsychology.com/cognitive-distortions/#mental-filter" },
+  { name:"Viziune în Tunel", aka:"Atenție selectivă la amenințare", definition:"A scana o situație exclusiv pentru aspectele sale negative sau amenințătoare, în timp ce elementele neutre și pozitive rămân complet în afara câmpului de conștientizare.", example:"\"Acel eveniment de networking a fost îngrozitor. Îmi amintesc doar pauza stânjenitoare — nu și cele trei conversații bune pe care le-am avut.\"", hint1:"Spre deosebire de Filtrul Mental, Viziunea în Tunel operează pe situații întregi — nu pe un singur detaliu.", hint2:"Întreaga situație este privită printr-o lentilă negativă — pozitivele nu sunt filtrate, ci pur și simplu nevăzute.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Bias de Confirmare", aka:"A vedea ce te aștepți", definition:"A acorda atenție selectivă informațiilor care confirmă o credință negativă existentă despre sine, ceilalți sau lume — ignorând dovezile contrare.", example:"\"Trei colegi mi-au zâmbit, dar unul a privit în altă parte — asta dovedește că oamenii mă găsesc nesimpatic.\"", hint1:"Persoana nu filtrează aleatoriu — caută specific dovezi ale a ceea ce deja crede.", hint2:"Dovezile care confirmă credința sunt observate; cele care o contrazic sunt invizibile sau ignorate.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Descalificarea Pozitivului", aka:"Respingerea binelui", definition:"A respinge activ experiențele pozitive inventând un motiv pentru care acestea nu contează — menținând astfel o credință negativă în ciuda dovezilor contrare clare.", example:"\"Clienta mi-a spus că ședința a fost exact ce aveau nevoie. Ea este doar politicoasă — asta nu reflectă competența mea reală.\"", hint1:"Pozitivele nu sunt ignorate — sunt recunoscute și apoi neutralizate cu un 'dar'.", hint2:"Persoana găsește un motiv specific (noroc, politețe, standarde scăzute) pentru a anula fiecare experiență pozitivă.", readMore:"https://positivepsychology.com/cognitive-distortions/#disqualifying-the-positive" },
+  { name:"Minimizare", aka:"Micșorarea pozitivului", definition:"A subevalua sistematic propriile realizări, calități sau contribuții — tratând succesele autentice ca pe ceva trivial sau neremarcabil.", example:"\"Oricine ar fi gestionat acea criză. Am făcut ce era evident — nu a fost o realizare reală.\"", hint1:"Spre deosebire de Descalificare, aici pozitivul nu este explicat — ci pur și simplu micșorat până la aproape zero.", hint2:"Realizările sunt recunoscute, dar imediat deflate: 'nu a fost nimic', 'oricine putea face asta'.", readMore:"https://positivepsychology.com/cognitive-distortions/#minimization" },
+  { name:"Catastrofizare", aka:"Exagerare", definition:"A exagera semnificația sau consecințele unui eveniment negativ până devine o catastrofă — imaginând cel mai rău rezultat plauzibil ca pe cel mai probabil.", example:"\"Am încurcat cuvintele în prezentare. Cariera mea s-a terminat — nimeni nu mă va mai lua în serios.\"", hint1:"Saltul de la un eveniment real la o consecință catastrofică imaginată este caracteristica cheie.", hint2:"Un eveniment negativ real este punctul de plecare, dar rezultatul prezis este disproporționat.", readMore:"https://positivepsychology.com/cognitive-distortions/#magnification" },
+  { name:"Magnificarea Defectelor", aka:"Lupa pe imperfecțiune", definition:"A mări un defect, greșeală sau slăbiciune specific — la sine sau la alții — și a-l amplifica până domină percepția ta asupra acelei persoane sau situații.", example:"\"Am observat că am întrerupt pe cineva o dată în ședință. Sunt atât de egoist — asta este cine sunt cu adevărat.\"", hint1:"Aceasta se aplică specific defectelor — nu evenimentelor negative generale ca în Catastrofizare.", hint2:"Un singur defect este mărit până umple întregul cadru — orice altceva despre persoană devine invizibil.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Toleranță Scăzută la Frustrare", aka:"Nu pot suporta asta", definition:"A crede că disconfortul, inconveniența sau durerea emoțională sunt intolerabile și de nesuportat — deși de fapt le tolerezi.", example:"\"Nu pot suporta această incertitudine. Pur și simplu nu pot face față necunoscutului.\"", hint1:"Afirmația 'nu pot suporta asta' este semnătura — spusă despre ceva ce persoana, de fapt, suportă.", hint2:"Disconfortul este catastrofizat ca insuportabil mai degrabă decât neplăcut — o diferență subtilă, dar importantă clinic.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Suprageneralizare", aka:"Concluzii prea largi", definition:"A trage o concluzie largă și absolută despre sine, ceilalți sau viață pe baza unui singur incident negativ — folosind cuvinte precum mereu, niciodată, toți, nimeni.", example:"\"Am fost respins pentru acel loc de muncă. Mereu eșuez în momentele importante — asta este doar cine sunt.\"", hint1:"Un singur eveniment devine dovada unui tipar fără sfârșit și universal.", hint2:"Definiția descrie folosirea unui incident specific pentru a dovedi o regulă permanentă și globală.", readMore:"https://positivepsychology.com/cognitive-distortions/#overgeneralization" },
+  { name:"Autoevaluare Globală Negativă", aka:"Evaluarea întregului sine", definition:"A reduce întreaga identitate la o judecată negativă totalizatoare bazată pe eșecuri specifice — evaluând întreg sinele, nu comportamentul specific.", example:"\"Am făcut o eroare gravă în acea evaluare. Nu sunt doar un clinician prost — sunt fundamental incompetent ca persoană.\"", hint1:"Saltul este de la 'am făcut ceva greșit' la 'sunt fundamental defect'.", hint2:"Un comportament sau eșec specific este folosit pentru a condamna întregul sine ca entitate globală.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Citirea Gândurilor", aka:"Interes presupus", definition:"A trage concluzii cu certitudine despre ce gândește sau simte altă persoană — aproape mereu ceva negativ — fără dovezi directe și fără verificare.", example:"\"Nu a menținut contactul vizual în timpul prezentării mele. Cu siguranță crede că sunt depășit de situație.\"", hint1:"Persoana este certă despre starea interioară a altuia — fără verificare, fără dovezi, fără alternativă luată în considerare.", hint2:"O stare interioară negativă este atribuită altcuiva ca fapt, nu ca ipoteză.", readMore:"https://positivepsychology.com/cognitive-distortions/#mind-reading" },
+  { name:"Prezicerea Viitorului", aka:"Gândire predictivă", definition:"A trata o predicție negativă despre viitor ca pe o certitudine — nu ca pe o teamă sau posibilitate — și a o folosi pentru a justifica evitarea sau lipsa de speranță în prezent.", example:"\"Nu are rost să mă pregătesc pentru interviu. Știu exact cum va merge — voi îngheța și mă vor respinge.\"", hint1:"Predicția este ținută cu certitudinea unui fapt, nu cu deschiderea unei ipoteze.", hint2:"Rezultatul viitor este tratat ca deja cunoscut — evitarea sau disperarea urmează din această falsă certitudine.", readMore:"https://positivepsychology.com/cognitive-distortions/#fortune-telling" },
+  { name:"Saltul la Concluzii", aka:"Inferență arbitrară", definition:"A ajunge la o concluzie negativă despre o situație fără suficiente dovezi — trecând de la date ambigue direct la o interpretare dăunătoare.", example:"\"Întâlnirea a fost reprogramată în ultimul moment. Ceva trebuie să fi mers prost — și-au pierdut încrederea în mine.\"", hint1:"Spre deosebire de Citirea Gândurilor sau Prezicerea Viitorului, concluzia este despre o situație, nu specific despre gândurile unei persoane sau un eveniment viitor.", hint2:"Un eveniment ambiguu primește o semnificație negativă fără a lua în considerare alternative neutre sau pozitive.", readMore:"https://positivepsychology.com/cognitive-distortions/#jumping-to-conclusions" },
+  { name:"Similaritate Presupusă", aka:"Proiecție a stărilor interioare", definition:"A presupune că ceilalți trăiesc situații, emoții sau reacții exact la fel cum le trăiești tu — proiectând propria lume interioară asupra lor fără verificare.", example:"\"Bineînțeles că s-a simțit umilit când l-am corectat — eu aș fi fost devastat. Trebuie să mă urască acum.\"", hint1:"Propria ta reacție emoțională este presupusă a fi universală — starea interioară a altuia nu este niciodată verificată.", hint2:"Persoana folosește propria reacție ca șablon pentru experiența oricui altcuiva.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Raționament Emoțional", aka:"Sentimentele ca fapte", definition:"A folosi prezența unei emoții puternice ca dovadă a unui adevăr obiectiv — 'o simt, deci trebuie să fie reală și exactă'.", example:"\"Mă simt un imposteur în acest rol. Sentimentul de fraudă dovedește că nu aparțin cu adevărat aici.\"", hint1:"Emoția în sine este luată ca dovadă — nu ca semnal de examinat, ci ca dovadă a realității.", hint2:"Logica este: 'simt X, deci X este adevărat' — emoția înlocuiește dovezile obiective.", readMore:"https://positivepsychology.com/cognitive-distortions/#emotional-reasoning" },
+  { name:"Raționament Emoțional despre Viitor", aka:"Anxietatea ca predicție", definition:"A folosi prezența anxietății sau a groazei față de un eveniment viitor ca dovadă că evenimentul va merge prost — confundând o teamă cu o prognoză.", example:"\"Mă simt terorizat de prezentarea de mâine. Această teroare îmi spune că va merge catastrofal de prost.\"", hint1:"Aceasta se distinge de Prezicerea Viitorului — dovada predicției negative este specific emoția anxietății.", hint2:"Anxietatea este interpretată greșit ca semnal din realitate mai degrabă decât ca răspuns fiziologic la incertitudine.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Etichetare (sine)", aka:"Autoetichetare globală negativă", definition:"A atașa o etichetă de identitate negativă fixă și totalizatoare propriei persoane pe baza unei greșeli sau comportament specific — 'Sunt X' în loc de 'Am făcut X'.", example:"\"Am uitat să dau curs acelei trimiteri. Sunt un terapeut neglijent — asta este cine sunt.\"", hint1:"Eticheta înlocuiește comportamentul — persoana încetează să mai fie cineva care a greșit și devine greșeala.", hint2:"'Am făcut ceva greșit' devine 'Eu sunt ceva greșit' — identitatea se contopește cu eroarea.", readMore:"https://positivepsychology.com/cognitive-distortions/#labeling" },
+  { name:"Etichetarea Celorlalți", aka:"Etichetare globală negativă a altora", definition:"A atașa o etichetă negativă fixă și totalizatoare altei persoane pe baza unui singur comportament — reducând-o la un stereotip mai degrabă decât văzând-o ca individ complex.", example:"\"A întârziat douăzeci de minute. Este o persoană iresponsabilă și egoistă — asta este pur și simplu ce este.\"", hint1:"Aceeași logică ca la autoetichetare, dar îndreptată spre exterior — un comportament definește întreaga persoană.", hint2:"Un act specific este folosit pentru a elimina complet persoana în mod permanent.", readMore:"https://positivepsychology.com/cognitive-distortions/#labeling" },
+  { name:"Etichetare Catastrofică", aka:"Etichetare cu încărcătură emoțională", definition:"A folosi limbaj extrem, încărcat emoțional pentru a te descrie pe tine, pe alții sau evenimente — cuvinte mult mai dure decât justifică faptele, amplificând suferința.", example:"\"Acea ședință a fost o catastrofă absolută. Am fost jalnic și incompetent — a fost rușinos.\"", hint1:"Etichetele folosite sunt disproporționat de severe — 'catastrofă', 'dezgustător', 'jalnic', 'îngrozitor'.", hint2:"Negativele obișnuite primesc un limbaj exploziv, generând rușine și intensificând impactul emoțional.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Afirmații cu \u201eTrebuie\u201d (îndreptate spre sine)", aka:"Musterbație", definition:"A aplica reguli interne rigide și inflexibile asupra propriei persoane folosind 'trebuie', 'ar trebui', 'trebuie să', 'e obligatoriu' — producând vinovăție și autocritică când regulile nu sunt respectate.", example:"\"Ar trebui să știu mereu ce să spun. Nu trebuie niciodată să arăt incertitudine față de un client.\"", hint1:"Regula este absolută — nu există excepții, context sau compasiune pentru limitele umane.", hint2:"'Trebuie' și 'ar trebui' funcționează ca legi morale — orice violare produce vinovăție sau rușine intensă.", readMore:"https://positivepsychology.com/cognitive-distortions/#should-statements" },
+  { name:"Afirmații cu \u201eTrebuie\u201d (îndreptate spre alții)", aka:"Exigență față de ceilalți", definition:"A aplica reguli rigide de 'trebuie' și 'ar trebui' altor oameni — producând resentiment, frustrare și furie când inevitabil nu le respectă.", example:"\"Ar trebui să știe cum mă simt fără să trebuiască să explic. Un partener bun ar înțelege pur și simplu.\"", hint1:"Frustrarea și resentimentul sunt semnătura emoțională — nu vinovăția ca în 'trebuie' auto-directate.", hint2:"Regula este impusă altora care nu au fost niciodată informați de ea — nerespectarea ei este trăită ca o violare morală.", readMore:"https://positivepsychology.com/cognitive-distortions/#should-statements" },
+  { name:"Perfecționism", aka:"Standardul imposibil de ridicat", definition:"A stabili standarde de performanță nerealiste și a echivala orice este mai puțin decât perfect cu eșecul complet — fără loc pentru 'suficient de bun'.", example:"\"Am obținut 91% la examen. Aveam nevoie de 100%. M-am dezamăgit — asta nu este suficient de bun.\"", hint1:"Perfecționismul este 'trebuie' aplicat global la performanță — orice deviere de la ideal este eșec total.", hint2:"Standardul este stabilit la un nivel pe care niciun om nu-l poate susține — chiar și o performanță puternică este trăită ca eșec.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Îndreptățire", aka:"Reguli speciale pentru mine", definition:"A crede că meriți un tratament diferit, preferențial față de regulile și așteptările obișnuite — experimentând resentiment sau indignare când se aplică standardele normale.", example:"\"Aștept de cincisprezece minute. Nu știu acești oameni că timpul meu este valoros? Asta este complet inacceptabil.\"", hint1:"Răspunsul emoțional este indignarea — nu dezamăgirea, ci simțul nedreptății de a fi tratat obișnuit.", hint2:"Regulile care se aplică tuturor sunt trăite ca o afrontă la statutul special al cuiva.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Personalizare", aka:"Gândire auto-referențială", definition:"A-ți asuma responsabilitate personală excesivă și nejustificată pentru evenimentele externe negative — văzându-te ca principala cauză a rezultatelor care implică mulți alți factori.", example:"\"Clientul meu a abandonat terapia. Trebuie să fie pentru că nu sunt suficient de calificat — i-am dat greș.\"", hint1:"Persoana se inserează ca principala cauză a unui eveniment care are mulți factori contribuitori.", hint2:"Evenimentele externe sunt automat atribuite sinelui ca dovadă a eșecului sau inadecvării personale.", readMore:"https://positivepsychology.com/cognitive-distortions/#personalization" },
+  { name:"Externalizarea Vinei", aka:"Mereu vina altcuiva", definition:"A-i considera pe alții sau circumstanțele externe complet responsabili pentru stările tale emoționale negative — refuzând să recunoști orice contribuție personală la situație.", example:"\"Sunt mereu stresat și mă răstesc la oameni pentru că managerul meu creează un mediu imposibil. Este în totalitate vina lui.\"", hint1:"Propriul rol al persoanei, alegerile sau reacțiile sunt complet absente din narațiune.", hint2:"Responsabilitatea cauzală deplină este plasată în exterior — sinele este un victim pasiv al forțelor externe.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Amintire Distorsionată a Interacțiunilor Sociale", aka:"Memorie selectiv negativă", definition:"A-ți aminti momentele negative dintr-o interacțiune socială uitând sau minimizând pozitivele — creând o imagine retrospectivă distorsionată, mai proastă decât evenimentul în realitate.", example:"\"Am susținut o prezentare și tot ce îmi amintesc sunt cele două secunde în care m-am împiedicat în cuvinte. Nu am nicio amintire din aplauzele de la final sau din complimentele primite după.\"", hint1:"Bias-ul operează asupra memoriei, nu doar asupra atenției — ceea ce este encodat și reapelat este disproporționat de negativ.", hint2:"Atât evenimentele pozitive, cât și cele negative s-au întâmplat — doar un tip este stocat și reluat.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Comparație (negativă)", aka:"Comparație socială nefavorabilă", definition:"A-ți măsura valoarea, performanța sau viața față de ceilalți — selectând consecvent ținta de comparație cea mai realizată și ignorând orice context, efort și punct de plecare.", example:"\"Colegul meu a publicat trei articole anul acesta. Eu am publicat unul. Evident că rămân în urmă — nu sunt făcut pentru asta.\"", hint1:"Ținta de comparație este mereu selectată astfel încât persoana să iasă în dezavantaj — niciodată un egal sau un coleg care se luptă.", hint2:"Contextul, avantajele, circumstanțele și diferitele puncte forte sunt complet excluse din comparație.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Externalizarea Valorii de Sine", aka:"Stima de sine contingentă", definition:"A lega întregul tău sentiment de valoare de măsuri externe — realizări, productivitate, aprobare, statut — astfel încât stima de sine crește și scade complet în funcție de rezultatele externe.", example:"\"Mă simt valoroas doar în zilele în care sunt productivă. Fără randament, nu am valoare — ocupă pur și simplu spațiu.\"", hint1:"Valoarea de sine nu este trăită ca intrinsecă — se câștigă și se poate pierde în funcție de rezultatele externe.", hint2:"Valoarea este condiționată de performanță — elimină performanța și sinele se simte gol sau lipsit de valoare.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Nevoia de Aprobare", aka:"Stimă de sine dependentă de aprobare", definition:"A face sentimentul tău de valoare, deciziile și bunăstarea emoțională contingente de a primi validare și considerație pozitivă din partea altora.", example:"\"Supervizoarea nu a comentat raportul meu. Trebuie să fie dezamăgită. Nu mă pot simți bine în legătură cu munca mea până nu știu că aprobă.\"", hint1:"Sinele nu poate genera propria evaluare pozitivă — trebuie obținută din exterior.", hint2:"Aprobarea nu este doar dorită, ci necesară — absența ei creează anxietate sau sentimentul lipsei de valoare.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Sindromul Impostorului", aka:"Schema fraudulenței", definition:"A atribui realizările tale autentice norocului, înșelăciunii sau standardelor scăzute ale altora — trăind cu frica cronică de a fi expus ca mai puțin competent decât cred oamenii.", example:"\"Am fost acceptat în acest program, dar m-au judecat greșit clar. Când vor vedea munca mea reală, vor realiza greșeala.\"", hint1:"Realizările sunt consecvent reatribuite norocului extern, nu competenței interne.", hint2:"Succesul este trăit ca o înșelăciune temporară, mai degrabă decât ca o reflecție a abilității reale.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"A Vedea o Situație Doar din Propria Perspectivă", aka:"Eșecul luării perspectivei", definition:"A interpreta evenimentele exclusiv prin propria lentilă emoțională fără a considera cu adevărat cum vede, simte sau trăiește cealaltă persoană aceeași situație — ducând la atribuirea greșită a motivelor și comunicare deficitară.", example:"\"I-am spus că feedback-ul a fost greu de auzit. Abia a răspuns, ceea ce dovedește că nu îi pasă de sentimentele mele. Niciodată nu am luat în considerare că poate era prea rănit el însuși ca să vorbească.\"", hint1:"Lumea interioară a celeilalte persoane nu este luată în considerare — doar comportamentul lor văzut din punctul de vedere al sinelui.", hint2:"Interpretarea sinelui este tratată ca fapt obiectiv mai degrabă decât ca una din cel puțin două perspective valide.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Orientare spre Regret", aka:"Ruminare axată pe trecut", definition:"A te fixa persistent pe greșelile din trecut, ocaziile ratate sau ce 'ar fi putut fi' — reluând scenarii contrafactuale care împiedică implicarea în prezent.", example:"\"Dacă aș fi făcut alegeri diferite în douăzecile, viața mea ar fi fost semnificativă. Tot ce este acum este doar o consecință a ceea ce nu am reușit să fac atunci.\"", hint1:"Tonul emoțional este regretul și pierderea — nu anxietatea față de viitor, ci durerea față de un trecut care nu poate fi schimbat.", hint2:"Energia este îndreptată înapoi — trecutul este retrăit, reanalizat și plâns mai degrabă decât învățat din el.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Gândire \u201eCe-ar fi dacă\u201d", aka:"Îngrijorare cronică axată pe viitor", definition:"A genera un lanț interminabil de întrebări ipotetice catastrofice despre viitor — fiecare răspuns producând un nou 'ce-ar fi dacă' — fără a ajunge vreodată la rezoluție.", example:"\"Ce-ar fi dacă iau decizia greșită? Ce-ar fi dacă nu pot gestiona consecințele? Ce-ar fi dacă totul se prăbușește și nu mă pot recupera?\"", hint1:"Lanțul de 'ce-ar fi dacă' este auto-perpetuant — niciun răspuns nu oferă ușurare, fiecare răspuns deschide următoarea întrebare.", hint2:"Spre deosebire de Prezicerea Viitorului, rezultatul nu este prezis ca sigur — ci anxios hipotetizat fără sfârșit.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Predicție Negativă", aka:"Prognoză pesimistă", definition:"A te aștepta în mod obișnuit la rezultate negative în situații ambigue — implicit considerând cel mai prost rezultat plauzibil ca cel mai probabil, fără dovezi specifice.", example:"\"Am această durere de cap de două zile. Știu deja că ceva serios este în neregulă — rezultatele vor fi proaste.\"", hint1:"Aceasta este mai blândă și mai obișnuită decât Prezicerea Viitorului — este o atitudine implicit pesimistă, nu o predicție sigură specifică.", hint2:"Rezultatul negativ este implicit — alternativele neutre sau pozitive nu sunt luate cu adevărat în considerare.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Atenție Selectivă față de Respingere Socială", aka:"Bias atențional față de semnale de respingere", definition:"A acorda atenție disproporționată semnalelor de respingere, critică sau dezaprobare socială — ignorând în același timp semnalele de acceptare, interes sau căldură la fel de prezente — creând o imagine distorsionată despre modul în care ceilalți te percep.", example:"\"În timpul ședinței am observat că o persoană și-a verificat telefonul și am presupus că se plictisește. Nu am observat deloc că alte trei persoane dădeau din cap aprobator și luau notițe.\"", hint1:"Bias-ul este direcțional — semnalele de respingere sunt amplificate, cele de acceptare sunt invizibile sau minimizate.", hint2:"Ambele tipuri de semnale sunt prezente în situație — doar cele negative sunt înregistrate și reținute în memorie.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Gândire Magică", aka:"Cauzalitate superstițioasă", definition:"A crede că gânduri, cuvinte, ritualuri sau obiecte fără legătură pot influența cauzal rezultatele externe — chiar și atunci când nu există niciun mecanism rațional.", example:"\"Dacă mă las să imaginez diagnosticul ca benign, îl voi strica și va deveni mai rău. Trebuie să mă aștept la ce e mai rău pentru a fi în siguranță.\"", hint1:"O legătură cauzală este construită între un gând/ritual și un rezultat extern fără nicio bază rațională.", hint2:"Credința este ținută cu suficientă convingere pentru a influența comportamentul — ritualurile sunt efectuate pentru a preveni rezultatele temute.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Eroarea Controlului — Extern", aka:"Gândire de neajutorare învățată", definition:"A crede că viața, rezultatele și stările emoționale sunt determinate în întregime de forțe externe — lăsându-te fără nicio agenție, alegere sau capacitate de a influența situația.", example:"\"Nu pot face nimic în privința anxietății mele — pur și simplu mi se întâmplă. Circumstanțele mele controlează cum mă simt și nu pot schimba asta.\"", hint1:"Agenția este trăită ca zero — sinele este un recipient pasiv al a ceea ce produc forțele externe.", hint2:"Această credință funcționează atât ca distorsiune, cât și ca profeție auto-împlinită — împiedică orice acțiune care ar putea să o infirme.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Eroarea Controlului — Intern", aka:"Gândire de responsabilitate omnipotentă", definition:"A crede că ești personal responsabil pentru bunăstarea emoțională a tuturor celor din jurul tău — că durerea, fericirea sau suferința lor este cauzată și controlată de acțiunile tale.", example:"\"Partenerul meu este nefericit în seara asta. Trebuie să fi făcut ceva — este treaba mea să mă asigur că oamenii din jurul meu sunt bine.\"", hint1:"Spre deosebire de Personalizare, aceasta nu privește vina pentru un eveniment specific — ci un simț cronic al responsabilității pentru stările emoționale ale altora.", hint2:"Sinele este trăit ca regulatorul emoțional al tuturor din mediul lor.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Eroarea Echității", aka:"Gândire că viața trebuie să fie corectă", definition:"A funcționa dintr-o credință neexaminată că viața ar trebui să distribuie rezultatele în mod echitabil — și a experimenta resentiment cronic sau amărăciune când nu o face.", example:"\"Muncesc de două ori mai mult decât colegii mei și câștig mai puțin. Asta este obiectiv nedrept — lumea ar trebui să recompenseze efortul.\"", hint1:"Credința nu este aleasă conștient — operează ca o presupunere invizibilă care generează resentiment continuu.", hint2:"Viața este măsurată față de un standard de echitate intern pe care nu a fost niciodată concepută să-l îndeplinească.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Eroarea Recompensei Divine", aka:"Așteptarea justiției cosmice", definition:"A crede că auto-sacrificiul, rezistența și efortul vor fi inevitabil recompensate — de destin, karma sau justiție — producând amărăciune și resentiment când nu sunt.", example:"\"Am dat totul acestei organizații timp de cincisprezece ani. Merit recunoaștere și loialitate în schimb — și nu primesc niciunul.\"", hint1:"Credința este într-un registru moral — faptele bune sunt depozitate și recompensele sunt așteptate să fie returnate.", hint2:"Când recompensa așteptată nu se materializează, răspunsul nu este doar dezamăgire, ci indignare morală.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Nevoia de a Avea Întotdeauna Dreptate", aka:"Compulsia dreptății", definition:"A experimenta faptul de a greși ca intolerabil — dedicând energie semnificativă demonstrării corectitudinii opiniilor și deciziilor tale, adesea în detrimentul relației.", example:"\"Știu că am dreptate în privința asta și am nevoie ca el să o admită. Conversația nu se încheie până nu recunoaște că am avut dreptate.\"", hint1:"Scopul interacțiunii s-a schimbat de la comunicare la câștig — a avea dreptate contează mai mult decât conexiunea.", hint2:"Mizele emoționale de a greși sunt disproporționate — se simte ca o amenințare la identitate, nu doar o eroare.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Gândire bazată pe Costuri Investite", aka:"Bias al investiției anterioare", definition:"A continua un curs de acțiune — o relație, carieră sau angajament — în principal din cauza timpului, banilor sau energiei deja investite, mai degrabă decât a valorii sale curente sau viitoare.", example:"\"Am petrecut opt ani în această carieră. Nu pot schimba direcția acum — asta ar însemna că tot ce am investit a fost irosit.\"", hint1:"Investiția din trecut a fost deja cheltuită — nu poate fi recuperată indiferent de alegerile viitoare.", hint2:"Decizia este ghidată de ceea ce s-a pierdut mai degrabă decât de ceea ce se poate câștiga — o logică orientată înapoi.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Profeție Auto-Împlinită", aka:"Bias de confirmare comportamental", definition:"A acționa în moduri care fac predicțiile negative să devină realitate — folosind apoi rezultatul ca confirmare că credința originală era exactă.", example:"\"Știu că oamenii mă vor găsi plictisitor, așa că tac și mă retrag. Apoi nimeni nu vorbește cu mine, ceea ce dovedește că am dreptate.\"", hint1:"Comportamentul este veriga lipsă — fără el, predicția nu s-ar împlini neapărat.", hint2:"Distorsiunea creează propriile dovezi prin acțiunile persoanei.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Certitudine Patologică", aka:"Intoleranță la incertitudine", definition:"A găsi incertitudinea cognitiv și emoțional intolerabilă — necesitând garanții înainte de a acționa, lua decizii sau a permite odihnă.", example:"\"Nu pot avansa cu planul de tratament până nu sunt sigur că este cel potrivit. Am nevoie să fiu cert înainte de a mă angaja la ceva.\"", hint1:"Cererea de certitudine este trăită ca rezonabilă — dar nicio cantitate de informații nu o satisface cu adevărat.", hint2:"Incertitudinea este tratată ca echivalentă cu pericolul — rezolvarea ei devine o prioritate urgentă care interferează cu funcționarea.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Credința că Auto-Critica Este Motivantă", aka:"Criticul interior aspru ca motor", definition:"Credința că a te judeca aspru pentru eșecuri, defecte sau lipsuri este o strategie eficientă și necesară pentru a motiva un comportament viitor mai bun — când de fapt auto-critica tinde să reducă motivația și să crească rușinea.", example:"\"Dacă mă tratez cu blândețe după o greșeală, voi continua să fac aceleași greșeli. Singura cale de îmbunătățire este să nu mă las să scap nepedepsit.\"", hint1:"Auto-critica pare intenționată și disciplinată — ceea ce face ca oprirea ei să pară periculoasă sau leneșă.", hint2:"Credința confundă disconfortul cu eficacitatea — durerea pare productivă, compasiunea pare permisivă.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"A Presupune că Sentimentele Actuale Vor Rămâne Aceleași", aka:"Permanența stărilor emoționale", definition:"A trata starea ta emoțională actuală ca pe o caracteristică permanentă a viitorului tău mai degrabă decât ca pe o stare temporară care se va schimba — folosind cum te simți acum ca predictor fidel al cum te vei simți mereu.", example:"\"Mă simt complet incapabil să gestionez asta astăzi. Asta înseamnă că nu voi putea niciodată să fac față unor astfel de situații — asta sunt eu pur și simplu.\"", hint1:"Distorsiunea prăbușește 'acum' și 'mereu' — o stare temporară este reinterpretată ca o trăsătură permanentă.", hint2:"Emoțiile sunt dinamice și dependente de context — dar această distorsiune le tratează ca fapte fixe despre sine.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Suprageneralizare din Respingere", aka:"Un nu înseamnă toate nu-urile", definition:"A interpreta o singură experiență de respingere, eșec sau critică ca dovadă a unui tipar permanent și universal de respingere care va continua indefinit.", example:"\"A spus că nu este interesată. Fiecare femeie la care voi apela va spune același lucru — pur și simplu nu sunt tipul de persoană pe care oamenii o aleg.\"", hint1:"Respingerea unică este transformată într-o lege permanentă și universală despre sine.", hint2:"Un singur punct de date este extrapolat într-un verdict pe tot parcursul vieții, inevitabil.", readMore:"https://positivepsychology.com/cognitive-distortions/#overgeneralization" },
+  { name:"Absența Entuziasmului Înseamnă că Ceva e în Neregulă", aka:"Citirea neutralului ca negativ", definition:"A interpreta un răspuns neutru sau ușor pozitiv ca dovadă de dezaprobare, supărare sau eșec — pentru că absența căldurii entuziaste este trăită ca un semnal că ceva nu e în regulă.", example:"\"Supervizoarea a spus 'bună treabă' fără să zâmbească. Trebuie să fie dezamăgită de mine. Dacă ar fi fost cu adevărat mulțumită, ar fi spus mai mult.\"", hint1:"Distorsiunea constă în ceea ce este citit în semnalul neutru — nu în semnalul în sine.", hint2:"Un răspuns cald și entuziast este setat ca unic baseline acceptabil — orice mai puțin este reinterpretat ca respingere.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Fuziunea Gândurilor cu Faptele", aka:"Fuziune cognitivă", definition:"A trata gândurile ca adevăruri literale despre realitate mai degrabă decât ca evenimente mentale — presupunând că deoarece un gând există, reflectă exact și neapărat lumea.", example:"\"Gândul 'Sunt o povară pentru toți' continuă să apară. Dacă mă gândesc la asta atât de des, trebuie să descrie ceva real despre mine.\"", hint1:"Persistența sau intensitatea gândului este luată ca dovadă a adevărului — frecvența egal validitate.", hint2:"Gândurile nu sunt examinate sau puse la îndoială — existența lor este confundată cu dovada a ceea ce afirmă.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Idealizare", aka:"Plasarea pe un piedestal", definition:"A percepe o persoană, relație sau situație ca fără cusur și perfectă — construind o imagine idealizată care nu poate supraviețui contactului cu realitatea umană obișnuită.", example:"\"Acest nou supervizor este exact ce aveam nevoie — înțelege totul, nu greșește niciodată și este complet de încredere. În sfârșit mă simt în siguranță.\"", hint1:"Idealizarea creează un eșec inevitabil — nicio persoană nu poate susține imaginea perfecțiunii.", hint2:"Imaginea pozitivă este construită pentru a servi o nevoie psihologică — siguranță, speranță sau evadare din dezamăgire.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Credința că Îngrijorarea Duce la Rezolvarea Problemelor", aka:"Iluzia îngrijorării productive", definition:"Credința că a te îngrijora intens în legătură cu o problemă este o formă de muncă mentală utilă care va produce în cele din urmă soluții sau va preveni rezultate negative — când în realitate îngrijorarea afectează rezolvarea problemelor și crește evitarea.", example:"\"Dacă mă gândesc la tot ce ar putea merge prost, voi fi pregătit. A opri îngrijorarea ar însemna să fiu iresponsabil.\"", hint1:"Îngrijorarea pare activă și cu efort — ceea ce creează iluzia că face ceva util.", hint2:"Credința funcționează pentru a justifica și perpetua îngrijorarea — orice sugestie de a opri pare periculoasă.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Catastrofizare Minte-Corp", aka:"Interpretarea greșită a senzațiilor fizice", definition:"A interpreta senzații fizice normale sau ambigue ca dovadă a unei boli grave sau pericol iminent — corpul devine o sursă de semnale amenințătoare.", example:"\"Inima mea bate mai repede decât de obicei. Ceva este serios în neregulă — ar putea fi un eveniment cardiac.\"", hint1:"Senzația este reală — interpretarea catastrofică este distorsiunea, nu experiența fizică în sine.", hint2:"Variația fiziologică normală este filtrată printr-o lentilă de amenințare — neutralul devine periculos.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Distorsiune Retrospectivă", aka:"Rescrierea negativă a trecutului", definition:"A revizui amintirile evenimentelor trecute printr-o lentilă negativă actuală — amintindu-ți situațiile ca mai rele decât au fost sau reținând selectiv doar elementele dureroase.", example:"\"Privind înapoi, acea relație a fost mereu greșită. Nu am fost niciodată cu adevărat fericit — pur și simplu nu am văzut atunci.\"", hint1:"Trecutul nu este reamintit neutru — este reconstruit pentru a se potrivi stării sau credinței emoționale negative actuale.", hint2:"Memoria pare fapt, dar este activ modelată de starea emoțională prezentă.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Evaluare Dihotomică a Celorlalți", aka:"Oamenii sunt fie cu mine, fie împotriva mea", definition:"A categoriza intențiile altor persoane ca fie în întregime favorabile, fie în întregime ostile — incapabil să ții posibilitatea că cineva poate concomitent să te iubească și să te dezamăgească.", example:"\"Nu m-a sunat săptămâna asta. Clar nu îi pasă de mine deloc — nu pot conta pe ea.\"", hint1:"Aceasta este Gândire Totul-sau-Nimic aplicată specific relațiilor și intențiilor altora.", hint2:"Un comportament dezamăgitor șterge toate dovezile de grijă — persoana este reclasificată de la aliat la dușman.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"\u201eTrebuie\u201d despre Emoții", aka:"Nu ar trebui să mă simt așa", definition:"A aplica reguli rigide propriei experiențe emoționale — crezând că anumite sentimente sunt interzise, rușinoase sau greșite — și criticându-te pentru că le simți.", example:"\"Nu ar trebui să mai plâng — a trecut un an. Ar trebui să fi trecut peste asta până acum. Ceva nu e în regulă cu mine.\"", hint1:"Aceasta este Afirmații cu 'Trebuie' aplicată interior sentimentelor mai degrabă decât comportamentelor — emoțiile devin eșecuri morale.", hint2:"Sentimentul în sine nu este problema — judecata că sentimentul este inacceptabil creează suferința secundară.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" }
+];
+
 var DISTORTIONS = [
   { name:"All-or-Nothing Thinking", aka:"Black-and-white thinking", definition:"Evaluating experiences in extreme, absolute categories — perfect or worthless, success or failure — with no room for the middle ground that reflects real life.", example:"\"I ate one biscuit off my diet. The whole week is ruined — I have no self-control.\"", hint1:"Look for absolute words: always, never, completely, totally, worthless, perfect.", hint2:"The definition describes a total absence of grey — only black or white outcomes exist.", readMore:"https://positivepsychology.com/cognitive-distortions/#all-or-nothing" },
   { name:"Splitting", aka:"Idealisation and devaluation", definition:"Oscillating between seeing a person as entirely wonderful and entirely worthless — unable to hold a balanced, mixed view of the same individual.", example:"\"My therapist understood me perfectly for months. Now that she challenged me, she's completely incompetent and doesn't care at all.\"", hint1:"Watch for a sudden, total flip from idealization to contempt with no middle ground.", hint2:"The same person is first perfect, then worthless — without any mixed or nuanced view.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
@@ -421,16 +669,16 @@ var DISTORTIONS = [
   { name:"Entitlement", aka:"Special rules for me", definition:"Believing that you deserve different, preferential treatment from ordinary rules and expectations — experiencing resentment or indignation when normal standards apply to you.", example:"\"I've been waiting fifteen minutes. Don't these people know my time is valuable? This is completely unacceptable.\"", hint1:"The emotional response is indignation — not disappointment, but a sense of injustice at being treated ordinarily.", hint2:"The rules that apply to everyone are experienced as an affront to one's special status.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Personalization", aka:"Self-referential thinking", definition:"Assuming excessive and unwarranted personal responsibility for negative external events — seeing yourself as the primary cause of outcomes that involve many other factors.", example:"\"My client dropped out of therapy. It must be because I'm not skilled enough — I failed them.\"", hint1:"The person inserts themselves as the main cause of an event that has multiple contributing factors.", hint2:"External events are automatically routed back to the self as evidence of personal failure or inadequacy.", readMore:"https://positivepsychology.com/cognitive-distortions/#personalization" },
   { name:"Externalization of Blame", aka:"It's always someone else's fault", definition:"Holding others or external circumstances entirely responsible for your negative emotional states — refusing to acknowledge any personal contribution to a situation.", example:"\"I'm always stressed and snapping at people because my manager creates an impossible environment. It's entirely his fault.\"", hint1:"The person's own role, choices, or reactions are completely absent from the account.", hint2:"Full causal responsibility is placed outside — the self is a passive victim of external forces.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
-  { name:"Overidentification", aka:"Emotional enmeshment", definition:"Becoming so merged with another person's emotional state that you lose your own separate perspective — their distress becomes your distress without a boundary between you.", example:"\"When my client is in pain, I carry it home with me completely. I can't separate their suffering from my own feelings.\"", hint1:"This is particularly relevant for therapists and caregivers — it is the cognitive/emotional basis of compassion fatigue.", hint2:"The self-other boundary dissolves — you feel what they feel as if it were your own direct experience.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Negatively Biased Recall of Social Encounters", aka:"Selective negative memory", definition:"Remembering the negative moments from a social interaction while forgetting or discounting the positives — creating a distorted retrospective picture that is worse than the event actually was.", example:"\"I gave a presentation and all I can remember is the two seconds I stumbled over my words. I have no memory of the applause at the end or the compliments I received afterwards.\"", hint1:"The bias operates on memory, not just attention — what gets encoded and retrieved is disproportionately negative.", hint2:"Both positive and negative events happened — only one type is stored and replayed.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Comparison", aka:"Unfavourable social comparison", definition:"Measuring your worth, performance, or life against others — consistently selecting the most accomplished comparison target and ignoring all context, effort, and starting point.", example:"\"My colleague published three papers this year. I've published one. I'm clearly falling behind — I'm not cut out for this.\"", hint1:"The comparison target is always selected to make the person come up short — never an equal or struggling peer.", hint2:"Context, advantages, circumstances, and different strengths are entirely excluded from the comparison.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Externalization of Self-Worth", aka:"Contingent self-esteem", definition:"Tying your entire sense of worth to external measures — achievements, productivity, approval, status — so that self-esteem rises and falls entirely with external outcomes.", example:"\"I only feel I have value on days when I'm productive. Without output, I'm worthless — just taking up space.\"", hint1:"Self-worth is not experienced as inherent — it is earned and can be lost depending on external results.", hint2:"Worth is contingent on performance — remove the performance and the self feels empty or worthless.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Need for Approval", aka:"Approval-dependent self-esteem", definition:"Making your sense of self-worth, decisions, and emotional wellbeing contingent on receiving validation and positive regard from others.", example:"\"My supervisor didn't comment on my report. She must be disappointed. I can't feel good about my work until I know she approves.\"", hint1:"The self cannot generate its own positive evaluation — it must be sourced from outside.", hint2:"Approval is not just desired but required — its absence creates anxiety or worthlessness.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Imposter Thinking", aka:"Fraudulence schema", definition:"Attributing your genuine achievements to luck, deception, or others' lowered standards — living in chronic fear of being exposed as less competent than people believe.", example:"\"I was accepted into this programme but they clearly misjudged me. When they see my actual work, they'll realise their mistake.\"", hint1:"Achievements are consistently re-attributed to external luck rather than internal competence.", hint2:"Success is experienced as a temporary deception rather than a reflection of real ability.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
-  { name:"Emotional Neglect of Self", aka:"Invalidating your own emotions", definition:"Dismissing your own emotional experience as unwarranted, weak, or self-indulgent — telling yourself you have no right to feel what you feel.", example:"\"I shouldn't be this upset — other people have real problems. My feelings are completely disproportionate and embarrassing.\"", hint1:"The person does not deny having the feeling — they deny its legitimacy or right to exist.", hint2:"Feelings are judged as inappropriate before they are listened to — the self becomes its own harsh critic.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Seeing a Situation Only From Your Own Perspective", aka:"Perspective-taking failure", definition:"Interpreting events exclusively through your own emotional lens without genuinely considering how the other person sees, feels, or experiences the same situation — leading to misattribution of motive and impaired communication.", example:"\"I told him the feedback was hard to hear. He barely responded, which proves he doesn't care about my feelings. I never considered he might have been too hurt himself to speak.\"", hint1:"The other person's inner world is not considered — only their behaviour as seen from the self's viewpoint.", hint2:"The self's interpretation is treated as objective fact rather than one of at least two valid perspectives.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Regret Orientation", aka:"Past-focused rumination", definition:"Dwelling persistently on past mistakes, missed opportunities, or what 'could have been' — replaying counterfactual scenarios that prevent engagement with the present.", example:"\"If I had made different choices in my twenties, my life would be meaningful. Everything now is just a consequence of what I failed to do then.\"", hint1:"The emotional tone is regret and loss — not anxiety about the future but grief about a past that cannot be changed.", hint2:"Energy is directed backward — the past is relived, reanalysed, and mourned rather than learned from.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"What-If Thinking", aka:"Chronic future-focused worry", definition:"Generating an unending chain of catastrophic hypothetical questions about the future — each answer producing another 'what if' — without ever reaching resolution.", example:"\"What if I make the wrong decision? What if I can't handle the consequences? What if everything falls apart and I can't recover?\"", hint1:"The chain of 'what ifs' is self-perpetuating — no answer provides relief, each response opens the next question.", hint2:"Unlike Fortune Telling, the outcome is not predicted as certain — it is endlessly, anxiously hypothesized.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Negative Prediction", aka:"Pessimistic forecasting", definition:"Habitually expecting negative outcomes in ambiguous situations — defaulting to the worst plausible result as the most probable one, without specific evidence.", example:"\"I've had this headache for two days. I already know something serious is wrong — the results will be bad.\"", hint1:"This is milder and more habitual than Fortune Telling — it's a default pessimistic stance, not a specific certain prediction.", hint2:"The negative outcome is the automatic default — neutral or positive possibilities are not genuinely considered.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
-  { name:"Hypervigilance", aka:"Threat-scanning mode", definition:"Maintaining a chronic state of heightened alertness — continuously scanning the environment for signs of danger, rejection, or failure — even in objectively safe situations.", example:"\"I can never fully relax in social situations. I'm always monitoring people's faces for signs of boredom or disapproval.\"", hint1:"The vigilance is not proportionate to actual threat — it is a constant background process regardless of context.", hint2:"Safety is never registered — the nervous system remains in threat-detection mode by default.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Biased Attention toward Social Rejection", aka:"Selective attention to rejection cues", definition:"Paying disproportionate attention to signs of social rejection, criticism, or disapproval while filtering out equally available signs of acceptance, interest, or warmth — creating a distorted picture of how others receive you.", example:"\"During the meeting I noticed one person check their phone and assumed they were bored. I completely missed that three others were nodding and taking notes.\"", hint1:"The bias is directional — rejection cues are magnified, acceptance cues are invisible or minimised.", hint2:"Both types of signal are present in the situation — only the negative ones are registered and remembered.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Magical Thinking", aka:"Superstitious causation", definition:"Believing that unrelated thoughts, words, rituals, or objects can causally influence external outcomes — even when no rational mechanism exists.", example:"\"If I allow myself to imagine the diagnosis being benign, I'll jinx it and make it worse. I need to expect the worst to stay safe.\"", hint1:"A causal link is constructed between a thought/ritual and an external outcome with no rational basis.", hint2:"The belief is held with enough conviction to influence behaviour — rituals are performed to prevent feared outcomes.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Control Fallacy — External", aka:"Learned helplessness thinking", definition:"Believing that your life, outcomes, and emotional states are determined entirely by external forces — leaving you with no agency, choice, or capacity to influence your situation.", example:"\"There's nothing I can do about my anxiety — it just happens to me. My circumstances control how I feel and I can't change that.\"", hint1:"Agency is experienced as zero — the self is a passive recipient of whatever external forces produce.", hint2:"This belief functions as both a distortion and a self-fulfilling prophecy — it prevents any action that might disprove it.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Control Fallacy — Internal", aka:"Omnipotent responsibility thinking", definition:"Believing that you are personally responsible for the emotional wellbeing of everyone around you — that their pain, happiness, or distress is caused and controlled by your actions.", example:"\"My partner is unhappy tonight. I must have done something — it's my job to make sure the people around me are okay.\"", hint1:"Unlike Personalization, this is not about blame for a specific event — it is a chronic sense of responsibility for others' emotional states.", hint2:"The self is experienced as the emotional regulator for everyone in their environment.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
@@ -440,13 +688,13 @@ var DISTORTIONS = [
   { name:"Sunk Cost Thinking", aka:"Past-investment bias", definition:"Continuing a course of action — a relationship, career path, or commitment — primarily because of the time, money, or energy already invested, rather than its current or future value.", example:"\"I've spent eight years in this career. I can't change direction now — that would mean everything I've invested was wasted.\"", hint1:"The past investment has already been spent — it cannot be recovered regardless of future choices.", hint2:"The decision is driven by what has been lost rather than what can be gained — a backward-looking logic.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Self-Fulfilling Prophecy", aka:"Behavioural confirmation bias", definition:"Acting in ways that make your negative predictions come true — then using the outcome as confirmation that the original belief was accurate.", example:"\"I know people will find me boring, so I stay quiet and withdraw. Then nobody talks to me, which proves I'm right.\"", hint1:"The behaviour is the missing link — without it, the prediction would not necessarily come true.", hint2:"The distortion creates the evidence for itself through the person's own actions.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Pathological Certainty", aka:"Intolerance of uncertainty", definition:"Finding uncertainty cognitively and emotionally intolerable — requiring guarantees before taking action, making decisions, or allowing oneself to feel settled.", example:"\"I can't move forward with the treatment plan until I'm certain it's the right one. I need to be sure before I commit to anything.\"", hint1:"The demand for certainty is experienced as reasonable — but no amount of information actually satisfies it.", hint2:"Uncertainty is treated as equivalent to danger — settling it becomes an urgent priority that interferes with functioning.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
-  { name:"Martyrdom", aka:"Suffering as identity", definition:"Organising your identity around suffering and self-sacrifice — amplifying or maintaining distress because it confirms a sense of moral worth or elicits care from others.", example:"\"Nobody sees how much I carry for this family. I give everything and receive nothing — and I just keep going because someone has to.\"", hint1:"The suffering is not merely experienced — it is narrated, performed, and maintained as evidence of virtue.", hint2:"Martyrdom provides identity and moral status — relief from suffering would require giving up this identity.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
-  { name:"Passive Victim Stance", aka:"Agency-denying helplessness", definition:"Adopting a chronic position of helplessness in relation to your circumstances — behaving as though change is impossible and taking no action that might alter the situation.", example:"\"There's nothing I can do about my situation. Other people have it easier — I'm just stuck with what I've been given.\"", hint1:"Unlike Control Fallacy External, the Passive Victim Stance is a behavioural posture — it is enacted, not just believed.", hint2:"The stance removes all accountability and all possibility — which provides relief from the burden of trying.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Belief that Self-Criticism is Motivating", aka:"Harsh inner critic as driver", definition:"The belief that judging yourself harshly for failures, flaws, or shortcomings is an effective and necessary strategy to motivate better future behaviour — when in fact self-criticism tends to reduce motivation and increase shame.", example:"\"If I go easy on myself after making a mistake, I'll just keep making the same mistakes. The only way to improve is to refuse to let myself off the hook.\"", hint1:"Self-criticism feels purposeful and disciplined — which makes stopping it feel dangerous or lazy.", hint2:"The belief confuses discomfort with effectiveness — pain feels productive, compassion feels permissive.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Assuming Current Feelings Will Stay the Same", aka:"Emotional state permanence", definition:"Treating your current emotional state as a permanent feature of your future rather than as a temporary state that will change — using how you feel now as a reliable predictor of how you will always feel.", example:"\"I feel completely incapable of handling this today. This means I will never be able to cope with situations like this — this is just who I am.\"", hint1:"The distortion collapses 'now' and 'always' — a temporary state is reinterpreted as a permanent trait.", hint2:"Emotions are dynamic and context-dependent — but this distortion treats them as fixed facts about the self.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Overgeneralization from Rejection", aka:"One no means all no", definition:"Interpreting a single experience of rejection, failure, or criticism as proof of a permanent, universal pattern of rejection that will continue indefinitely.", example:"\"She said she wasn't interested. Every woman I approach will say the same — I'm just not the kind of person people choose.\"", hint1:"The single rejection is transformed into a permanent, universal law about the self.", hint2:"One data point is extrapolated into a lifelong, inescapable verdict.", readMore:"https://positivepsychology.com/cognitive-distortions/#overgeneralization" },
-  { name:"Emotional Contagion Distortion", aka:"Absorbing others' emotions as your own", definition:"Automatically adopting the emotional state of those around you — particularly distressed individuals — and losing clarity about which feelings are yours and which belong to others.", example:"\"After my client's session, I feel hopeless and exhausted — exactly as they described feeling. I can't tell where their feelings end and mine begin.\"", hint1:"This distortion is a clinical hazard for therapists and caregivers — the foundation of vicarious trauma.", hint2:"The self becomes a mirror for others' affect rather than a separate emotional presence.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Absence of Effusiveness Means Something is Wrong", aka:"Reading neutral as negative", definition:"Interpreting a neutral or mildly positive response as evidence of disapproval, anger, or failure — because the absence of enthusiastic warmth is experienced as a signal that something is wrong.", example:"\"My supervisor said 'good work' without smiling. She must be disappointed in me. If she were genuinely pleased she would have said more.\"", hint1:"The distortion is in what is read into the neutral signal — not in the signal itself.", hint2:"A warm, enthusiastic response is set as the only acceptable baseline — anything less is reinterpreted as rejection.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Fusing Thoughts with Facts", aka:"Cognitive fusion", definition:"Treating thoughts as literal truths about reality rather than as mental events — assuming that because a thought exists, it accurately and necessarily reflects the world.", example:"\"The thought 'I am a burden to everyone' keeps appearing. If I think it this often, it must be describing something real about me.\"", hint1:"The thought's persistence or intensity is taken as evidence of its truth — frequency equals validity.", hint2:"Thoughts are not examined or questioned — their existence is mistaken for proof of what they assert.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Idealization", aka:"Placing on a pedestal", definition:"Perceiving a person, relationship, or situation as flawless and perfect — constructing an idealised image that cannot survive contact with ordinary human reality.", example:"\"This new supervisor is exactly what I've needed — she understands everything, makes no mistakes, and is completely trustworthy. I finally feel safe.\"", hint1:"Idealization sets up an inevitable crash — no person can sustain the image of perfection.", hint2:"The positive image is constructed to serve a psychological need — safety, hope, or escape from disappointment.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
-  { name:"Emotional Avoidance Thinking", aka:"If I don't think about it, it won't hurt", definition:"Believing that avoiding thoughts or feelings about a painful topic will make it less real or less damaging — using cognitive suppression as an emotional protection strategy.", example:"\"I just won't think about the diagnosis. If I focus on other things, it won't affect me as much.\"", hint1:"The strategy of not thinking is itself a thought — and suppression tends to increase the intensity of what is suppressed.", hint2:"Avoidance is mistaken for protection — in reality it maintains and often amplifies the feared emotional content.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
+  { name:"Belief that Worry Leads to Problem-Solving", aka:"Productive worry illusion", definition:"The belief that worrying intensely about a problem is a form of useful mental work that will eventually produce solutions or prevent bad outcomes — when in reality worry impairs problem-solving and increases avoidance.", example:"\"If I keep thinking about all the things that could go wrong, I'll be prepared for them. Stopping worrying would mean being irresponsible.\"", hint1:"Worry feels active and effortful — which creates the illusion it is doing something useful.", hint2:"The belief functions to justify and perpetuate worry — any suggestion to stop feels dangerous.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Mind-Body Catastrophizing", aka:"Physical sensation misinterpretation", definition:"Interpreting normal or ambiguous physical sensations as evidence of serious illness or imminent danger — the body becomes a source of threatening signals.", example:"\"My heart is beating faster than usual. Something is seriously wrong — this could be a cardiac event.\"", hint1:"The sensation is real — the catastrophic interpretation is the distortion, not the physical experience itself.", hint2:"Normal physiological variation is filtered through a threat lens — neutral becomes dangerous.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Retrospective Distortion", aka:"Rewriting the past negatively", definition:"Revising memories of past events through a current negative lens — remembering situations as worse than they were, or selectively recalling only the painful elements.", example:"\"Looking back, that relationship was always wrong. I was never really happy — I just didn't see it at the time.\"", hint1:"The past is not recalled neutrally — it is reconstructed to fit the current negative mood or belief.", hint2:"Memory feels like fact but is being actively shaped by the present emotional state.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
   { name:"Dichotomous Evaluation of Others", aka:"People are either with me or against me", definition:"Categorising other people's intentions as either entirely supportive or entirely hostile — unable to hold the possibility that someone can simultaneously care for you and disappoint you.", example:"\"She forgot to check in on me this week. She clearly doesn't care about me at all — I can't rely on her.\"", hint1:"This is All-or-Nothing Thinking applied specifically to relationships and others' intentions.", hint2:"One disappointing behaviour erases all evidence of care — the person is reclassified from ally to enemy.", readMore:"https://www.psychologytoday.com/us/blog/in-practice/201301/50-common-cognitive-distortions" },
@@ -497,7 +745,7 @@ function toggleHint(q) {
   var hint=$(q+'-hint'), btn=$(q+'-hint-btn');
   var on=hint.classList.contains('visible');
   hint.classList.toggle('visible',!on);
-  btn.innerHTML=on?'💡 Need a hint?':'🙈 Hide hint';
+  btn.innerHTML=on?t('hint_btn'):t('hint_hide');
 }
 
 function showStatus(id,type,msg) {
@@ -521,13 +769,14 @@ function confirmHome() {
 
 // ── QUIZ
 function startQuiz() {
-  var picked = shuffle(DISTORTIONS).slice(0,2);
+  var picked = shuffle(D()).slice(0,2);
   state.current  = picked[0];
   state.current2 = picked[1];
-  var others = DISTORTIONS.filter(function(d){ return d!==state.current && d!==state.current2; });
+  var others = D().filter(function(d){ return d!==state.current && d!==state.current2; });
   state.distractors  = shuffle(others).slice(0,3);
   state.q1Answered = state.q2Answered = false;
   state.q1Correct  = state.q2Correct  = false;
+  state.q2revealed = false;
   buildQ1(); buildQ2();
   // Flash animation on new quiz
   var card = document.querySelector('#screen-q1 .card');
@@ -537,11 +786,11 @@ function startQuiz() {
 
 function buildQ1() {
   var d = state.current;
-  $('q1-name-label').textContent = d.name;
-  $('q1-text').textContent = 'What best describes the distortion called "'+d.name+'"?';
+  $('q1-distortion-label').innerHTML = t('distortion_label_1')+'<span id="q1-name-label">'+d.name+'</span>';
+  $('q1-text').textContent = t('q1_question')+d.name+t('q1_question_close');
   $('q1-hint-text').textContent = d.hint1;
   $('q1-hint').classList.remove('visible');
-  $('q1-hint-btn').innerHTML = '💡 Need a hint?';
+  $('q1-hint-btn').innerHTML = t('hint_btn');
   $('q1-feedback').className = 'feedback-box';
   $('q1-feedback').innerHTML = '';
   $('q1-example').className = 'example-box';
@@ -572,11 +821,11 @@ function answerQ1(btn,isCorrect,d) {
   var fb=$('q1-feedback');
   fb.className='feedback-box '+(isCorrect?'correct-fb':'wrong-fb')+' show';
   fb.innerHTML=isCorrect
-    ?'<strong>Correct!</strong> "'+d.name+'" — '+d.aka+'.'
-    :'<strong>Not quite.</strong> The correct definition is highlighted above. Also known as: <em>'+d.aka+'</em>.';
+    ?'<strong>'+t('fb_correct')+'</strong> "'+d.name+'"'+t('fb_correct_q1')+d.aka+'.'
+    :'<strong>'+t('fb_wrong')+'</strong> '+t('fb_wrong_q1')+'<em>'+d.aka+'</em>.';
   var ex=$('q1-example');
   ex.className='example-box show';
-  ex.innerHTML='<strong>Real-life example:</strong> '+d.example;
+  ex.innerHTML='<strong>'+t('example_label')+'</strong> '+d.example;
   $('q1-btn-row').style.display='flex';
   // Scroll to button row on mobile
   setTimeout(function(){ $('q1-btn-row').scrollIntoView({behavior:'smooth',block:'nearest'}); },200);
@@ -586,12 +835,12 @@ function goToQ2() { showScreen('screen-q2'); }
 
 function buildQ2() {
   var d = state.current2;
-  $('q2-name-label').textContent = '?';
-  $('q2-text').textContent = 'Which cognitive distortion matches this description?';
+  $('q2-distortion-label').innerHTML = t('distortion_label_2')+'<span id="q2-name-label">?</span>';
+  $('q2-text').textContent = t('q2_question');
   $('q2-context').textContent = d.definition;
   $('q2-hint-text').textContent = d.hint2;
   $('q2-hint').classList.remove('visible');
-  $('q2-hint-btn').innerHTML = '💡 Need a hint?';
+  $('q2-hint-btn').innerHTML = t('hint_btn');
   $('q2-feedback').className = 'feedback-box';
   $('q2-feedback').innerHTML = '';
   $('q2-example').className = 'example-box';
@@ -613,9 +862,9 @@ function buildQ2() {
 
 function answerQ2(btn,isCorrect,d) {
   if(state.q2Answered) return;
-  state.q2Answered=true; state.q2Correct=isCorrect;
+  state.q2Answered=true; state.q2Correct=isCorrect; state.q2revealed=true;
   // Reveal distortion name in label
-  $('q2-name-label').textContent = d.name;
+  document.getElementById('q2-distortion-label').innerHTML = t('distortion_label_2')+'<span id="q2-name-label">'+d.name+'</span>';
   document.querySelectorAll('#q2-options .option-btn').forEach(function(b){
     b.disabled=true;
     if(b.dataset.correct==='1') b.classList.add('correct');
@@ -624,11 +873,11 @@ function answerQ2(btn,isCorrect,d) {
   var fb=$('q2-feedback');
   fb.className='feedback-box '+(isCorrect?'correct-fb':'wrong-fb')+' show';
   fb.innerHTML=isCorrect
-    ?'<strong>Correct!</strong> You matched the definition to <em>'+d.name+'</em> accurately.'
-    :'<strong>Not quite.</strong> The description belongs to <em>'+d.name+'</em> — also known as <em>'+d.aka+'</em>.';
+    ?'<strong>'+t('fb_correct')+'</strong> '+t('fb_correct_q2')+'<em>'+d.name+'</em>'+t('fb_correct_q2b')
+    :'<strong>'+t('fb_wrong')+'</strong> '+t('fb_wrong_q2')+'<em>'+d.name+'</em>'+t('fb_wrong_q2b')+'<em>'+d.aka+'</em>.';
   var ex=$('q2-example');
   ex.className='example-box show';
-  ex.innerHTML='<strong>Real-life example:</strong> '+d.example;
+  ex.innerHTML='<strong>'+t('example_label')+'</strong> '+d.example;
   $('q2-btn-row').style.display='flex';
   setTimeout(function(){ $('q2-btn-row').scrollIntoView({behavior:'smooth',block:'nearest'}); },200);
 }
@@ -646,15 +895,9 @@ function showResults() {
   var score=(state.q1Correct?1:0)+(state.q2Correct?1:0);
   var d=state.current, d2=state.current2;
   var icons=['🌱','🌟','🎉'];
-  var titles=['Keep practicing!','Good effort!','Excellent!'];
-  var subs=[
-    'Review both distortions below and try again tomorrow.',
-    'You got one right. One more session will nail both!',
-    'You correctly identified both distortions. Sharp CBT knowledge!'
-  ];
   $('result-icon').textContent   = icons[score];
-  $('result-title').textContent  = titles[score];
-  $('result-subtitle').textContent = subs[score];
+  $('result-title').textContent  = t('score_titles')[score];
+  $('result-subtitle').textContent = t('score_subs')[score];
   $('res-correct').textContent   = score;
   $('res-wrong').textContent     = 2-score;
 
@@ -672,12 +915,12 @@ function showResults() {
   $('res-d1-def').textContent  = d.definition;
   $('res-d1-ex').textContent   = d.example;
   $('res-d1-more').href        = d.readMore;
-  $('res-d1-more').textContent = '📖 Read more →';
+  $('res-d1-more').textContent = t('read_more');
   $('res-d2-name').textContent = d2.name;
   $('res-d2-def').textContent  = d2.definition;
   $('res-d2-ex').textContent   = d2.example;
   $('res-d2-more').href        = d2.readMore;
-  $('res-d2-more').textContent = '📖 Read more →';
+  $('res-d2-more').textContent = t('read_more');
   showResultTab(1);
 
   saveHistory(d.name, d2.name, score);
@@ -728,7 +971,7 @@ function loadHistory() {
 }
 function renderHistory() {
   var h=loadHistory(), el=$('history-list');
-  if(!h.length){ el.innerHTML='<div class="history-empty">No practice sessions yet.<br>Start your first quiz to track progress!</div>'; return; }
+  if(!h.length){ el.innerHTML='<div class="history-empty">'+t('history_empty').replace('\n','<br>')+'</div>'; return; }
   el.innerHTML=h.map(function(item){
     var ds=new Date(item.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
     var win=item.score===2;
@@ -762,11 +1005,8 @@ function sendWhatsApp() {
 // ── GOOGLE CALENDAR
 function addToGoogleCalendar() {
   var d=state.current||DISTORTIONS[0], d2=state.current2||DISTORTIONS[1];
-  var freqEl=$('email-freq'), freq=freqEl?parseInt(freqEl.value,10):2;
-  var timeEl=$('email-time');
-  var timeHours=[8,10,12,15,18,20];
-  var timeIdx=timeEl?timeEl.selectedIndex:3;
-  var hour=timeHours[timeIdx]||15;
+  var freq = 2;   // every 2 days default
+  var hour = 15;  // 3 PM default
   var pad=function(n){return n<10?'0'+n:n;};
 
   // Start date: today at chosen hour (Google Calendar local time)
@@ -794,7 +1034,7 @@ function addToGoogleCalendar() {
 function sendEmail() {
   var DEFAULT_TO='psyalexsimion@yahoo.com';
   var to=$('email-to').value.trim(), cc=$('email-cc').value.trim();
-  if(to&&to.indexOf('@')===-1){ showStatus('email-status','error','Please enter a valid email address, or leave it empty.'); return; }
+  if(to&&to.indexOf('@')===-1){ showStatus('email-status','error',t('email_invalid')); return; }
   if(!to) to=DEFAULT_TO;
   var d=state.current||DISTORTIONS[0], d2=state.current2||DISTORTIONS[1];
   var score=(state.q1Correct?1:0)+(state.q2Correct?1:0);
@@ -829,10 +1069,10 @@ function sendEmail() {
     document.body.removeChild(form);
 
     $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
-    showStatus('email-status','success','✅ Email sent! A new tab opened briefly — you can close it. If this is your first time, check your inbox for a FormSubmit activation link, click it, then send once more.');
+    showStatus('email-status','success',t('email_status_ok'));
   } catch(e){
     $('email-btn-txt').style.display='inline'; $('email-btn-spin').style.display='none';
-    showStatus('email-status','error','Could not reach the email service. Opening your email client instead.');
+    showStatus('email-status','error',t('email_status_err'));
     openMailto(to,cc,subj,body);
   }
 }
@@ -847,6 +1087,7 @@ function applyConfig(){
   if($('email-to')&&em) $('email-to').value=em;
 }
 document.addEventListener('DOMContentLoaded',function(){
+  applyLang();
   applyConfig();
   var ei=$('email-to');
   if(ei) ei.addEventListener('input',function(){ try{ localStorage.setItem('cm_email_to',ei.value.trim()); }catch(e){} });
